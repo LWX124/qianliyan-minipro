@@ -1,0 +1,70 @@
+<view class="page">
+  <!-- 顶部 banner 占位 -->
+  <view class="banner">
+    <view class="banner-placeholder">
+      <text class="banner-title">千里眼</text>
+      <text class="banner-sub">事故快拍助手</text>
+    </view>
+  </view>
+
+  <!-- 主内容区 -->
+  <view class="main-card">
+    <!-- 事故车辆插画占位 -->
+    <view class="accident-illustration">
+      <view class="illustration-placeholder">🚗💥🚙</view>
+    </view>
+
+    <!-- 推荐标签 + 录制视频卡片 -->
+    <view class="recommend-tag">
+      <text class="tag-text">推荐</text>
+    </view>
+    <view class="action-card video-card" bindtap="goRecordVideo">
+      <view class="action-icon">
+        <view class="icon-circle video-icon-bg">
+          <text class="iconfont">▶</text>
+        </view>
+      </view>
+      <text class="action-text">开始录制事故视频</text>
+    </view>
+
+    <!-- 拍照上传卡片 -->
+    <view class="action-card photo-card" bindtap="goTakePhoto">
+      <view class="action-icon">
+        <view class="icon-circle photo-icon-bg">
+          <text class="iconfont">📷</text>
+        </view>
+      </view>
+      <text class="action-text">拍照上传事故照片</text>
+    </view>
+
+    <!-- 温馨提示 -->
+    <view class="tips">
+      <text class="tips-text text-primary">温馨提示：不推荐拍照，通过率低</text>
+    </view>
+  </view>
+
+  <!-- 底部按钮区 -->
+  <view class="bottom-btns">
+    <button class="bottom-btn share-btn" open-type="share">
+      <text>分享好友</text>
+      <text class="btn-icon">↗</text>
+    </button>
+    <view class="bottom-btn welfare-btn" bindtap="onWelfare">
+      <text>加福利官</text>
+      <text class="btn-icon">🎁</text>
+    </view>
+  </view>
+
+  <!-- 福利官弹窗 -->
+  <view class="modal-mask" wx:if="{{showWelfareModal}}" bindtap="closeWelfareModal">
+    <view class="modal-content" catchtap="">
+      <text class="modal-title">添加福利官微信</text>
+      <view class="qrcode-placeholder">
+        <text class="qrcode-text">微信二维码</text>
+        <text class="qrcode-sub">（即将上线）</text>
+      </view>
+      <text class="modal-hint">长按识别二维码添加福利官</text>
+      <view class="modal-close" bindtap="closeWelfareModal">关闭</view>
+    </view>
+  </view>
+</view>

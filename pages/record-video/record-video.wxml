@@ -1,0 +1,59 @@
+<view class="page">
+  <!-- 录制状态：显示相机 -->
+  <block wx:if="{{status === 'idle' || status === 'recording'}}">
+    <camera class="camera" device-position="back" flash="off" binderror="onCameraError">
+      <!-- 录制中的计时器 -->
+      <view class="timer-overlay" wx:if="{{status === 'recording'}}">
+        <view class="timer-dot"></view>
+        <text class="timer-text">{{timerDisplay}}</text>
+      </view>
+    </camera>
+
+    <view class="controls">
+      <block wx:if="{{status === 'idle'}}">
+        <view class="record-btn" bindtap="startRecord">
+          <view class="record-btn-inner"></view>
+        </view>
+        <text class="control-hint">点击开始录制</text>
+        <text class="tip-text">视频最短10秒，最长5分钟</text>
+      </block>
+
+      <block wx:if="{{status === 'recording'}}">
+        <view class="btn-row">
+          <view class="cancel-btn" bindtap="cancelRecord">
+            <text>取消</text>
+          </view>
+          <view class="stop-btn {{seconds >= 10 ? '' : 'disabled'}}" bindtap="stopRecord">
+            <text>完成</text>
+          </view>
+        </view>
+        <text class="control-hint" wx:if="{{seconds < 10}}">还需录制 {{10 - seconds}} 秒</text>
+        <text class="control-hint" wx:else>可以点击完成了</text>
+        <text class="tip-text">视频最短10秒，最长5分钟</text>
+      </block>
+    </view>
+  </block>
+
+  <!-- 预览状态：显示录制的视频 -->
+  <block wx:if="{{status === 'preview'}}">
+    <video class="preview-video" src="{{videoPath}}" controls autoplay></video>
+
+    <view class="controls">
+      <view class="btn-row">
+        <view class="cancel-btn" bindtap="reRecord">
+          <text>重新录制</text>
+        </view>
+        <view class="upload-btn" bindtap="uploadVideo">
+          <text>上传</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 上传中 -->
+  <view class="uploading-mask" wx:if="{{uploading}}">
+    <view class="uploading-content">
+      <text class="uploading-text">上传中... {{uploadProgress}}%</text>
+    </view>
+  </view>
+</view>

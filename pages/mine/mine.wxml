@@ -1,0 +1,96 @@
+<view class="page">
+  <!-- 用户信息区 -->
+  <view class="user-header">
+    <view class="user-info">
+      <view class="avatar avatar-placeholder" wx:if="{{!userInfo.avatar}}">
+        <text class="avatar-text">👤</text>
+      </view>
+      <image class="avatar" wx:else src="{{userInfo.avatar}}" mode="aspectFill"></image>
+      <view class="user-detail">
+        <text class="nickname">{{userInfo.name || '微信用户'}}</text>
+        <view class="user-id">
+          <text>ID: {{userId}}</text>
+          <view class="copy-btn" bindtap="copyId">复制</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 统计数据 -->
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-num">0</text>
+        <text class="stat-label">合计奖励</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">0</text>
+        <text class="stat-label">报案奖励</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num">0</text>
+        <text class="stat-label">任务奖励</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 广告 banner 占位 -->
+  <view class="ad-banner">
+    <view class="ad-placeholder">
+      <text class="ad-text">拍照 5元-20元</text>
+    </view>
+  </view>
+
+  <!-- 功能网格 -->
+  <view class="func-grid card">
+    <view class="func-item" bindtap="goUploadHistory">
+      <text class="func-icon">📋</text>
+      <text class="func-name">上传记录</text>
+    </view>
+    <view class="func-item" bindtap="onComingSoon">
+      <text class="func-icon">📖</text>
+      <text class="func-name">使用教程</text>
+    </view>
+    <view class="func-item" bindtap="onComingSoon">
+      <text class="func-icon">📢</text>
+      <text class="func-name">公告</text>
+    </view>
+    <view class="func-item">
+      <button class="contact-btn" open-type="contact">
+        <text class="func-icon">💬</text>
+        <text class="func-name">在线客服</text>
+      </button>
+    </view>
+    <view class="func-item" bindtap="onComingSoon">
+      <text class="func-icon">👥</text>
+      <text class="func-name">邀请好友</text>
+    </view>
+    <view class="func-item" bindtap="onComingSoon">
+      <text class="func-icon">🏅</text>
+      <text class="func-name">我的积分</text>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="bottom-btns">
+    <button class="bottom-btn share-btn" open-type="share">
+      <text>分享好友</text>
+      <text class="btn-icon">↗</text>
+    </button>
+    <view class="bottom-btn welfare-btn" bindtap="onWelfare">
+      <text>加福利官</text>
+      <text class="btn-icon">🎁</text>
+    </view>
+  </view>
+
+  <!-- 福利官弹窗 -->
+  <view class="modal-mask" wx:if="{{showWelfareModal}}" bindtap="closeWelfareModal">
+    <view class="modal-content" catchtap="">
+      <text class="modal-title">添加福利官微信</text>
+      <view class="qrcode-placeholder">
+        <text class="qrcode-text">微信二维码</text>
+        <text class="qrcode-sub">（即将上线）</text>
+      </view>
+      <text class="modal-hint">长按识别二维码添加福利官</text>
+      <view class="modal-close" bindtap="closeWelfareModal">关闭</view>
+    </view>
+  </view>
+</view>

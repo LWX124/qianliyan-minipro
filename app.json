@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/record-video/record-video",
+    "pages/take-photo/take-photo",
+    "pages/mine/mine",
+    "pages/upload-history/upload-history"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "千里眼",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#ff4d4f",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "申请",
+        "iconPath": "images/tab-apply.png",
+        "selectedIconPath": "images/tab-apply-active.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "images/tab-mine.png",
+        "selectedIconPath": "images/tab-mine-active.png"
+      }
+    ]
+  },
+  "requiredPrivateInfos": ["getLocation"],
+  "permission": {
+    "scope.camera": {
+      "desc": "需要使用您的摄像头来录制事故视频和拍照"
+    },
+    "scope.userLocation": {
+      "desc": "需要获取您的位置信息来记录事故地点"
+    }
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
