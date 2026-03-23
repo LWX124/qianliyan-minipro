@@ -131,6 +131,7 @@
 ```javascript
 globalData: {
   isLogin: false,           // 登录状态
+  isCheckingLogin: true,    // 启动时验证 token 中
   userInfo: {               // 用户信息
     userId: 0,
     name: '',
@@ -167,6 +168,8 @@ globalData: {
 **实现代码结构：**
 
 ```javascript
+const config = require('./config/index')
+
 App({
   globalData: { /* ... */ },
 
@@ -178,6 +181,7 @@ App({
     const token = wx.getStorageSync('thirdSessionKey')
     if (!token) {
       this.globalData.isLogin = false
+      this.globalData.isCheckingLogin = false
       return
     }
 
@@ -199,10 +203,13 @@ App({
           wx.removeStorageSync('userId')
           this.globalData.isLogin = false
         }
+        this.globalData.isCheckingLogin = false
       },
       fail: () => {
-        // 网络错误，保持当前状态
-        console.error('验证 token 失败')
+        // 网络错误，进入游客模式
+        this.globalData.isLogin = false
+        this.globalData.isCheckingLogin = false
+        console.error('验证 token 失败，进入游客模式')
       }
     })
   },
@@ -225,6 +232,9 @@ App({
             data: { code: res.code, source: config.source },
             header: { 'content-type': 'application/json' },
             success: (loginRes) => {
+              // 先重置登录状态，避免回调执行时的竞态条件
+              this.globalData.isLoggingIn = false
+
               if (loginRes.data.code === 200) {
                 const data = loginRes.data.data
                 this.globalData.thirdSessionKey = data.thirdSessionKey
@@ -246,28 +256,44 @@ App({
                 })
                 this.globalData.loginCallbacks = []
               } else {
+                // 执行当前回调
                 options.fail && options.fail(loginRes.data.msg)
+
+                // 执行队列中的所有回调
                 this.globalData.loginCallbacks.forEach(cb => {
                   cb.fail && cb.fail(loginRes.data.msg)
                 })
                 this.globalData.loginCallbacks = []
               }
-              this.globalData.isLoggingIn = false
             },
             fail: (err) => {
+              // 先重置登录状态
+              this.globalData.isLoggingIn = false
+
+              // 执行当前回调
               options.fail && options.fail('登录请求失败')
+
+              // 执行队列中的所有回调
               this.globalData.loginCallbacks.forEach(cb => {
                 cb.fail && cb.fail('登录请求失败')
               })
               this.globalData.loginCallbacks = []
-              this.globalData.isLoggingIn = false
             }
           })
         }
       },
       fail: (err) => {
-        options.fail && options.fail('wx.login 失败')
+        // 先重置登录状态
         this.globalData.isLoggingIn = false
+
+        // 执行当前回调
+        options.fail && options.fail('wx.login 失败')
+
+        // 执行队列中的所有回调
+        this.globalData.loginCallbacks.forEach(cb => {
+          cb.fail && cb.fail('wx.login 失败')
+        })
+        this.globalData.loginCallbacks = []
       }
     })
   },
@@ -359,6 +385,25 @@ Page({
     })
   },
 
+  handleLogout() {
+    wx.showModal({
+      title: '提示',
+      content: '确定要退出登录吗？',
+      success: (res) => {
+        if (res.confirm) {
+          const app = getApp()
+          app.logout()
+          this.setData({
+            isLogin: false,
+            userInfo: {},
+            statistics: { totalReward: 0, caseReward: 0, taskReward: 0 }
+          })
+          wx.showToast({ title: '已退出登录', icon: 'success' })
+        }
+      }
+    })
+  },
+
   goUploadHistory() {
     const app = getApp()
     if (!app.globalData.isLogin) {
@@ -406,6 +451,7 @@ Page({
           <view class="copy-btn" bindtap="copyId">复制</view>
         </view>
       </view>
+      <view class="logout-btn" bindtap="handleLogout">退出登录</view>
     </view>
 
     <!-- 统计数据 -->
@@ -425,7 +471,18 @@ Page({
     </view>
   </view>
 
-  <!-- 其他内容保持不变 -->
+  <!-- 功能网格示例 -->
+  <view class="func-grid card">
+    <view class="func-item" bindtap="goUploadHistory">
+      <text class="func-icon">📋</text>
+      <text class="func-name">上传记录</text>
+    </view>
+    <view class="func-item" bindtap="onComingSoon">
+      <text class="func-icon">📖</text>
+      <text class="func-name">使用教程</text>
+    </view>
+    <!-- 其他功能项... -->
+  </view>
 </view>
 ```
 
@@ -711,10 +768,26 @@ wx.login() 获取 code
 
 ### 6.2 风险和注意事项
 
-1. **后端 AppID 配置**：注意 WxMiniLoginController 中的 AppID 切换逻辑，确保使用正确的 AppID
+1. **后端 AppID 配置**：注意 WxMiniLoginController 中的 AppID 切换逻辑，确保使用正确的 AppID（当前硬编码为 wxfbf28088488787ee，需要改为 wx5d88d6c7c216e1f3）
+
 2. **open-data 组件**：需要在真机上测试，开发工具可能显示异常
-3. **Token 有效期**：后端设置的 30 天有效期，需要确保前端逻辑能正确处理过期情况
-4. **并发控制**：需要仔细测试多个页面同时触发登录的情况
+
+3. **Token 有效期和刷新策略**：
+   - 后端设置的 30 天有效期，前端逻辑已正确处理过期情况
+   - 当前版本不支持自动刷新 token，用户需要重新登录
+   - 未来可考虑实现静默刷新机制：在 token 即将过期时（如剩余 3 天）自动调用登录接口刷新
+
+4. **并发控制**：需要仔细测试多个页面同时触发登录的情况，已通过回调队列机制处理
+
+5. **request 工具使用说明**：
+   - app.js 中直接使用 wx.request，因为需要在应用初始化时执行，此时 utils 模块可能未完全加载
+   - 页面中使用 utils/request.js 封装的 request 方法，自动携带 token 和 source
+   - 两种方式都能正确处理 530 错误码（token 过期）
+
+6. **启动时的加载状态**：
+   - 添加了 isCheckingLogin 标志位，页面可以根据此标志显示加载状态
+   - 建议在页面 onShow 时检查 isCheckingLogin，如果为 true 则显示加载提示
+   - 验证完成后 isCheckingLogin 会被设置为 false
 
 ## 7. 总结
 
