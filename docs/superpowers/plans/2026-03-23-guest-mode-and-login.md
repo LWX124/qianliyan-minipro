@@ -424,7 +424,7 @@ onShow() {
 
 - [ ] **Step 3: Add guest state UI to mine.wxml**
 
-Replace the user-header section in mine.wxml:
+Replace the entire user-header section in mine.wxml (lines 3-33, from `<view class="user-header">` to the closing `</view>` before the ad-banner comment):
 
 ```xml
 <!-- 游客状态 -->
@@ -584,7 +584,22 @@ handleLogout() {
 }
 ```
 
-- [ ] **Step 4: Update goUploadHistory to check login**
+- [ ] **Step 4: Add copyId method**
+
+Add after handleLogout():
+
+```javascript
+copyId() {
+  wx.setClipboardData({
+    data: String(this.data.userInfo.userId),
+    success: () => {
+      wx.showToast({ title: '已复制', icon: 'success' })
+    }
+  })
+}
+```
+
+- [ ] **Step 5: Update goUploadHistory to check login**
 
 Replace the existing goUploadHistory() method:
 
@@ -604,9 +619,9 @@ goUploadHistory() {
 }
 ```
 
-- [ ] **Step 5: Update login state UI in mine.wxml**
+- [ ] **Step 6: Update login state UI in mine.wxml**
 
-Replace the "登录状态" section:
+Replace the "登录状态" placeholder section (the `<view wx:else class="user-header">` block added in Task 4) with the complete login state UI:
 
 ```xml
 <!-- 登录状态 -->
@@ -641,11 +656,12 @@ Replace the "登录状态" section:
 </view>
 ```
 
-- [ ] **Step 6: Add login state styles to mine.wxss**
+- [ ] **Step 7: Update login state styles in mine.wxss**
 
-Add these styles:
+Update these existing styles in mine.wxss (merge with existing definitions):
 
 ```css
+/* Add to existing .logout-btn or create if not exists */
 .logout-btn {
   position: absolute;
   top: 32rpx;
@@ -657,6 +673,7 @@ Add these styles:
   border-radius: 32rpx;
 }
 
+/* Update existing .stats-row */
 .stats-row {
   display: flex;
   justify-content: space-around;
@@ -665,18 +682,21 @@ Add these styles:
   border-top: 1rpx solid rgba(0, 0, 0, 0.1);
 }
 
+/* Update existing .stat-item */
 .stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* Update existing .stat-num */
 .stat-num {
   font-size: 40rpx;
   font-weight: 600;
   color: #333;
 }
 
+/* Update existing .stat-label */
 .stat-label {
   font-size: 24rpx;
   color: #999;
@@ -684,7 +704,7 @@ Add these styles:
 }
 ```
 
-- [ ] **Step 7: Test login state display**
+- [ ] **Step 8: Test login state display**
 
 Run in WeChat DevTools:
 1. Click "立即登录" button
