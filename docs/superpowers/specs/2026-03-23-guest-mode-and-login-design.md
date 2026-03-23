@@ -235,8 +235,19 @@ App({
               // 先重置登录状态，避免回调执行时的竞态条件
               this.globalData.isLoggingIn = false
 
-              if (loginRes.data.code === 200) {
+              if (loginRes.data.code === 200 && loginRes.data.data) {
                 const data = loginRes.data.data
+
+                // 验证必需字段
+                if (!data.thirdSessionKey || !data.userId) {
+                  options.fail && options.fail('登录数据不完整')
+                  this.globalData.loginCallbacks.forEach(cb => {
+                    cb.fail && cb.fail('登录数据不完整')
+                  })
+                  this.globalData.loginCallbacks = []
+                  return
+                }
+
                 this.globalData.thirdSessionKey = data.thirdSessionKey
                 this.globalData.userInfo = {
                   userId: data.userId,
@@ -257,11 +268,11 @@ App({
                 this.globalData.loginCallbacks = []
               } else {
                 // 执行当前回调
-                options.fail && options.fail(loginRes.data.msg)
+                options.fail && options.fail(loginRes.data.msg || '登录失败')
 
                 // 执行队列中的所有回调
                 this.globalData.loginCallbacks.forEach(cb => {
-                  cb.fail && cb.fail(loginRes.data.msg)
+                  cb.fail && cb.fail(loginRes.data.msg || '登录失败')
                 })
                 this.globalData.loginCallbacks = []
               }
@@ -304,6 +315,7 @@ App({
     this.globalData.isLogin = false
     this.globalData.thirdSessionKey = ''
     this.globalData.userInfo = { userId: 0, name: '' }
+    this.globalData.loginCallbacks = []  // 清除待处理的登录回调
   }
 })
 ```
@@ -332,6 +344,13 @@ Page({
 
   onShow() {
     const app = getApp()
+
+    // 如果正在验证登录状态，等待验证完成
+    if (app.globalData.isCheckingLogin) {
+      // 可以显示加载提示
+      return
+    }
+
     this.setData({
       isLogin: app.globalData.isLogin,
       userInfo: app.globalData.userInfo
@@ -363,6 +382,11 @@ Page({
         // token 过期，切换到游客状态
         getApp().logout()
         this.setData({ isLogin: false })
+        wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+      } else {
+        // 其他错误，显示提示但不清除登录状态
+        console.error('获取个人数据失败:', err)
+        wx.showToast({ title: '获取数据失败', icon: 'none' })
       }
     })
   },
