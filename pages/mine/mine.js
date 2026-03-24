@@ -13,11 +13,26 @@ Page({
   },
 
   onShow() {
-    // 如果正在验证登录状态，等待验证完成
+    // 如果正在验证登录状态，轮询等待验证完成
     if (app.globalData.isCheckingLogin) {
+      this._checkTimer = setInterval(() => {
+        if (!app.globalData.isCheckingLogin) {
+          clearInterval(this._checkTimer)
+          this._syncLoginState()
+        }
+      }, 100)
       return
     }
+    this._syncLoginState()
+  },
 
+  onHide() {
+    if (this._checkTimer) {
+      clearInterval(this._checkTimer)
+    }
+  },
+
+  _syncLoginState() {
     this.setData({
       isLogin: app.globalData.isLogin,
       userInfo: app.globalData.userInfo
@@ -105,6 +120,9 @@ Page({
       app.login({
         success: () => {
           wx.navigateTo({ url: '/pages/upload-history/upload-history' })
+        },
+        fail: (msg) => {
+          wx.showToast({ title: msg || '登录失败', icon: 'none' })
         }
       })
     } else {

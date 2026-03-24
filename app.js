@@ -67,8 +67,16 @@ App({
 
     wx.login({
       success: (res) => {
-        if (res.code) {
-          wx.request({
+        if (!res.code) {
+          this.globalData.isLoggingIn = false
+          options.fail && options.fail('获取微信code失败')
+          this.globalData.loginCallbacks.forEach(cb => {
+            cb.fail && cb.fail('获取微信code失败')
+          })
+          this.globalData.loginCallbacks = []
+          return
+        }
+        wx.request({
             url: config.baseUrl + '/user/wxMiniLogin',
             method: 'POST',
             data: { code: res.code, source: config.source },
@@ -133,7 +141,6 @@ App({
               this.globalData.loginCallbacks = []
             }
           })
-        }
       },
       fail: (err) => {
         // 先重置登录状态
