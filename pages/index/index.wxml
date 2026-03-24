@@ -2,7 +2,7 @@
   <!-- 顶部 banner 占位 -->
   <view class="banner">
     <view class="banner-placeholder">
-      <text class="banner-title">千里眼</text>
+      <text class="banner-title">拍事故</text>
       <text class="banner-sub">事故快拍助手</text>
     </view>
   </view>

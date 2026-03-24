@@ -170,7 +170,7 @@ App({
 
   onShareAppMessage() {
     return {
-      title: '千里眼 - 事故快拍',
+      title: '拍事故 - 事故快拍',
       path: '/pages/index/index'
     }
   }
