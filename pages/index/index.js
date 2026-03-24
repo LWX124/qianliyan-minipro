@@ -4,11 +4,35 @@ Page({
   },
 
   goRecordVideo() {
-    wx.navigateTo({ url: '/pages/record-video/record-video' })
+    const app = getApp()
+    if (!app.globalData.isLogin) {
+      app.login({
+        success: () => {
+          wx.navigateTo({ url: '/pages/record-video/record-video' })
+        },
+        fail: (msg) => {
+          wx.showToast({ title: msg || '登录失败', icon: 'none' })
+        }
+      })
+    } else {
+      wx.navigateTo({ url: '/pages/record-video/record-video' })
+    }
   },
 
   goTakePhoto() {
-    wx.navigateTo({ url: '/pages/take-photo/take-photo' })
+    const app = getApp()
+    if (!app.globalData.isLogin) {
+      app.login({
+        success: () => {
+          wx.navigateTo({ url: '/pages/take-photo/take-photo' })
+        },
+        fail: (msg) => {
+          wx.showToast({ title: msg || '登录失败', icon: 'none' })
+        }
+      })
+    } else {
+      wx.navigateTo({ url: '/pages/take-photo/take-photo' })
+    }
   },
 
   onWelfare() {
