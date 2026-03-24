@@ -1,32 +1,44 @@
 <view class="page">
-  <!-- 用户信息区 -->
-  <view class="user-header">
+  <!-- 游客状态 -->
+  <view wx:if="{{!isLogin}}" class="user-header guest-mode">
     <view class="user-info">
-      <view class="avatar avatar-placeholder" wx:if="{{!userInfo.avatar}}">
+      <view class="avatar avatar-placeholder">
         <text class="avatar-text">👤</text>
       </view>
-      <image class="avatar" wx:else src="{{userInfo.avatar}}" mode="aspectFill"></image>
+      <view class="user-detail">
+        <text class="nickname">游客</text>
+        <text class="guest-hint">登录后查看更多功能</text>
+      </view>
+    </view>
+    <button class="login-btn" bindtap="handleLogin">立即登录</button>
+  </view>
+
+  <!-- 登录状态 -->
+  <view wx:else class="user-header">
+    <view class="user-info">
+      <open-data class="avatar" type="userAvatarUrl"></open-data>
       <view class="user-detail">
         <text class="nickname">{{userInfo.name || '微信用户'}}</text>
         <view class="user-id">
-          <text>ID: {{userId}}</text>
+          <text>ID: {{userInfo.userId}}</text>
           <view class="copy-btn" bindtap="copyId">复制</view>
         </view>
       </view>
+      <view class="logout-btn" bindtap="handleLogout">退出登录</view>
     </view>
 
     <!-- 统计数据 -->
     <view class="stats-row">
       <view class="stat-item">
-        <text class="stat-num">0</text>
+        <text class="stat-num">{{statistics.totalReward}}</text>
         <text class="stat-label">合计奖励</text>
       </view>
       <view class="stat-item">
-        <text class="stat-num">0</text>
+        <text class="stat-num">{{statistics.caseReward}}</text>
         <text class="stat-label">报案奖励</text>
       </view>
       <view class="stat-item">
-        <text class="stat-num">0</text>
+        <text class="stat-num">{{statistics.taskReward}}</text>
         <text class="stat-label">任务奖励</text>
       </view>
     </view>
