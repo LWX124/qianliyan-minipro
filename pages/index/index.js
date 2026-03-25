@@ -35,6 +35,10 @@ Page({
     }
   },
 
+  onComingSoon() {
+    wx.showToast({ title: '开发中，敬请期待！', icon: 'none' })
+  },
+
   onWelfare() {
     this.setData({ showWelfareModal: true })
   },

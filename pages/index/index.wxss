@@ -5,30 +5,17 @@
 
 .banner {
   width: 100%;
-  height: 200rpx;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
 }
 
-.banner-placeholder {
+.banner-img {
   width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #ff7875, #ff4d4f);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.banner-title {
-  color: #fff;
-  font-size: 40rpx;
-  font-weight: 600;
-}
-
-.banner-sub {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 26rpx;
-  margin-top: 8rpx;
+  height: 300rpx;
+  display: block;
+  vertical-align: top;
 }
 
 /* 主内容卡片 */
@@ -45,23 +32,10 @@
   margin-bottom: 20rpx;
 }
 
-.illustration-placeholder {
-  font-size: 80rpx;
-  line-height: 240rpx;
-}
-
-/* 推荐标签 */
-.recommend-tag {
-  margin-bottom: 16rpx;
-}
-
-.tag-text {
-  background: linear-gradient(135deg, #ff4d4f, #ff7875);
-  color: #fff;
-  font-size: 24rpx;
-  padding: 6rpx 20rpx;
-  border-radius: 8rpx 0 8rpx 0;
-  display: inline-block;
+.illustration-img {
+  width: 100%;
+  height: 300rpx;
+  border-radius: 12rpx;
 }
 
 /* 功能卡片 */
@@ -71,6 +45,23 @@
   padding: 40rpx 30rpx;
   text-align: center;
   margin-bottom: 24rpx;
+  position: relative;
+}
+
+/* 推荐标签 - 左上角斜角 */
+.recommend-tag {
+  position: absolute;
+  top: -2rpx;
+  left: -2rpx;
+}
+
+.tag-text {
+  background: linear-gradient(135deg, #ff4d4f, #ff7875);
+  color: #fff;
+  font-size: 22rpx;
+  padding: 6rpx 24rpx;
+  border-radius: 16rpx 0 16rpx 0;
+  display: inline-block;
 }
 
 .action-icon {
@@ -106,11 +97,32 @@
 /* 温馨提示 */
 .tips {
   text-align: center;
-  margin: 16rpx 0 8rpx;
+  margin: 16rpx 0 24rpx;
 }
 
-.tips-text {
+.tips-line {
+  display: block;
   font-size: 26rpx;
+  line-height: 1.8;
+}
+
+.tip-warning {
+  color: #ff4d4f;
+}
+
+.tip-info {
+  color: #ff4d4f;
+}
+
+/* 绑定认证按钮 */
+.bind-btn {
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 28rpx 0;
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 500;
+  color: #333;
 }
 
 /* 底部按钮 */
@@ -124,15 +136,15 @@
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-  border-radius: 16rpx;
-  padding: 28rpx 0;
+  justify-content: space-between;
+  padding: 32rpx 36rpx;
   font-size: 30rpx;
   color: #333;
-  gap: 12rpx;
   border: none;
   line-height: 1;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
 }
 
 .bottom-btn::after {
@@ -140,7 +152,8 @@
 }
 
 .btn-icon {
-  font-size: 32rpx;
+  font-size: 36rpx;
+  color: #999;
 }
 
 /* 福利官弹窗 */

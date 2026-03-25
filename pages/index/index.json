@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "拍事故",
-  "enablePullDownRefresh": false
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "loading-overlay": "/components/loading/loading"
+  }
 }

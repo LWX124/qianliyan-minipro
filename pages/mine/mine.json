@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "我的",
-  "enablePullDownRefresh": false
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "loading-overlay": "/components/loading/loading"
+  }
 }

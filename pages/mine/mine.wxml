@@ -1,4 +1,6 @@
 <view class="page">
+  <!-- 自定义登录 loading -->
+  <loading-overlay visible="{{showLoginLoading}}" text="{{loginLoadingText}}" />
   <!-- 游客状态 -->
   <view wx:if="{{!isLogin}}" class="user-header guest-mode">
     <view class="user-info">

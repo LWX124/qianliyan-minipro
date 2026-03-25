@@ -17,6 +17,19 @@ App({
     this.checkLoginStatus()
   },
 
+  // 控制当前页面的自定义 loading
+  _showPageLoading(text) {
+    const pages = getCurrentPages()
+    const page = pages[pages.length - 1]
+    if (page) page.setData({ showLoginLoading: true, loginLoadingText: text || '登录中' })
+  },
+
+  _hidePageLoading() {
+    const pages = getCurrentPages()
+    const page = pages[pages.length - 1]
+    if (page) page.setData({ showLoginLoading: false })
+  },
+
   // 启动时验证 token
   checkLoginStatus() {
     const token = wx.getStorageSync('thirdSessionKey')
@@ -65,9 +78,13 @@ App({
 
     this.globalData.isLoggingIn = true
 
+    this._showPageLoading('登录中')
+
     wx.login({
       success: (res) => {
+        console.log('[login] wx.login success, code:', res.code)
         if (!res.code) {
+          this._hidePageLoading()
           this.globalData.isLoggingIn = false
           options.fail && options.fail('获取微信code失败')
           this.globalData.loginCallbacks.forEach(cb => {
@@ -82,6 +99,8 @@ App({
             data: { code: res.code, source: config.source },
             header: { 'content-type': 'application/json' },
             success: (loginRes) => {
+              console.log('[login] 后端返回:', JSON.stringify(loginRes.data))
+              this._hidePageLoading()
               // 先重置登录状态，避免回调执行时的竞态条件
               this.globalData.isLoggingIn = false
 
@@ -128,7 +147,8 @@ App({
               }
             },
             fail: (err) => {
-              // 先重置登录状态
+              console.error('[login] 请求后端失败:', JSON.stringify(err))
+              this._hidePageLoading()
               this.globalData.isLoggingIn = false
 
               // 执行当前回调
@@ -143,6 +163,7 @@ App({
           })
       },
       fail: (err) => {
+        this._hidePageLoading()
         // 先重置登录状态
         this.globalData.isLoggingIn = false
 

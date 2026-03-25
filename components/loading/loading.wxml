@@ -1,0 +1,10 @@
+<view class="loading-mask" wx:if="{{visible}}">
+  <view class="loading-box">
+    <view class="loading-spinner">
+      <view class="dot dot1"></view>
+      <view class="dot dot2"></view>
+      <view class="dot dot3"></view>
+    </view>
+    <text class="loading-text">{{text || '登录中'}}</text>
+  </view>
+</view>
