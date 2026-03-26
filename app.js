@@ -14,7 +14,62 @@ App({
   },
 
   onLaunch() {
-    this.checkLoginStatus()
+    this.autoLogin()
+  },
+
+  // 启动时自动登录
+  autoLogin() {
+    const token = wx.getStorageSync('thirdSessionKey')
+
+    // 如果已有 token，先验证
+    if (token) {
+      wx.request({
+        url: config.baseUrl + '/user/checkToken',
+        header: {
+          'THIRDSESSIONKEY': token,
+          'X-Source': config.source
+        },
+        success: (res) => {
+          if (res.data.code === 200) {
+            // token 有效，直接使用
+            this.globalData.isLogin = true
+            this.globalData.userInfo = res.data.data
+            this.globalData.thirdSessionKey = token
+            this.globalData.isCheckingLogin = false
+            console.log('[autoLogin] token 有效，已登录')
+          } else {
+            // token 无效，清除并重新登录
+            wx.removeStorageSync('thirdSessionKey')
+            wx.removeStorageSync('userId')
+            this.globalData.isCheckingLogin = false
+            this.performLogin()
+          }
+        },
+        fail: () => {
+          // 网络错误，尝试登录
+          this.globalData.isCheckingLogin = false
+          this.performLogin()
+        }
+      })
+    } else {
+      // 没有 token，直接登录
+      this.globalData.isCheckingLogin = false
+      this.performLogin()
+    }
+  },
+
+  // 执行登录操作
+  performLogin() {
+    console.log('[performLogin] 开始自动登录')
+    this.login({
+      success: () => {
+        console.log('[performLogin] 自动登录成功')
+      },
+      fail: (msg) => {
+        console.error('[performLogin] 自动登录失败:', msg)
+        // 登录失败不阻塞用户使用，进入游客模式
+      }
+    })
   },
 
   // 控制当前页面的自定义 loading
