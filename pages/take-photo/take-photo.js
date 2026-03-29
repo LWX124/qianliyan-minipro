@@ -71,13 +71,12 @@ Page({
       }
 
       // 保存事故记录（图片用逗号分隔）
+      const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
       await request({
-        url: '/AccidentRecord/addVideo',
+        url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
         method: 'POST',
         data: {
-          imgUrl: urls.join(','),
-          type: 2,
-          source: config.source,
+          url: urls.join(','),
           lng: lng,
           lat: lat
         }

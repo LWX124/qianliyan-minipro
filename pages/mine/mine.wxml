@@ -18,13 +18,12 @@
   <!-- 登录状态 -->
   <view wx:else class="user-header">
     <view class="user-info">
-      <open-data class="avatar" type="userAvatarUrl"></open-data>
+      <image wx:if="{{userInfo.headImg}}" class="avatar" src="{{userInfo.headImg}}" mode="aspectFill" />
+      <view wx:else class="avatar avatar-placeholder">
+        <text class="avatar-text">👤</text>
+      </view>
       <view class="user-detail">
         <text class="nickname">{{userInfo.name || '微信用户'}}</text>
-        <view class="user-id">
-          <text>ID: {{userInfo.userId}}</text>
-          <view class="copy-btn" bindtap="copyId">复制</view>
-        </view>
       </view>
       <view class="logout-btn" bindtap="handleLogout">退出登录</view>
     </view>
@@ -58,6 +57,10 @@
     <view class="func-item" bindtap="goUploadHistory">
       <text class="func-icon">📋</text>
       <text class="func-name">上传记录</text>
+    </view>
+    <view class="func-item" bindtap="goRewardRecords">
+      <text class="func-icon">🏆</text>
+      <text class="func-name">奖励记录</text>
     </view>
     <view class="func-item" bindtap="onComingSoon">
       <text class="func-icon">📖</text>
@@ -105,6 +108,29 @@
       </view>
       <text class="modal-hint">长按识别二维码添加福利官</text>
       <view class="modal-close" bindtap="closeWelfareModal">关闭</view>
+    </view>
+  </view>
+
+  <!-- 微信头像昵称授权弹窗 -->
+  <view class="modal-mask" wx:if="{{showProfileModal}}" catchtap="">
+    <view class="modal-content profile-modal" catchtap="">
+      <text class="modal-title">设置头像和昵称</text>
+      <text class="profile-hint">请选择您的微信头像和昵称</text>
+      <view class="profile-avatar-wrap">
+        <button class="profile-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image wx:if="{{tempAvatarUrl}}" class="profile-avatar" src="{{tempAvatarUrl}}" mode="aspectFill" />
+          <view wx:else class="profile-avatar profile-avatar-empty">
+            <text>点击选择头像</text>
+          </view>
+        </button>
+      </view>
+      <view class="profile-nickname-wrap">
+        <input class="profile-nickname-input" type="nickname" placeholder="点击获取微信昵称" bindchange="onTempNicknameChange" value="{{tempNickname}}" />
+      </view>
+      <view class="profile-btn-row">
+        <view class="profile-btn profile-btn-skip" bindtap="skipProfile">跳过</view>
+        <view class="profile-btn profile-btn-confirm" bindtap="confirmProfile">确认</view>
+      </view>
     </view>
   </view>
 </view>

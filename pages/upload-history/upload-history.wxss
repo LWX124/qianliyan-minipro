@@ -95,6 +95,21 @@
   color: #faad14;
 }
 
+.reward-info {
+  margin-top: 8rpx;
+}
+
+.reward-amount {
+  font-size: 24rpx;
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+.reward-pending {
+  font-size: 24rpx;
+  color: #faad14;
+}
+
 .record-reason {
   font-size: 22rpx;
   color: #999;

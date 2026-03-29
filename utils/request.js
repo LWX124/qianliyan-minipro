@@ -44,7 +44,7 @@ function uploadFile(filePath, onProgress) {
   return new Promise((resolve, reject) => {
     const token = wx.getStorageSync('thirdSessionKey') || ''
     const uploadTask = wx.uploadFile({
-      url: config.baseUrl + '/file/upload',
+      url: config.baseUrl + '/file/uploadfile',
       filePath: filePath,
       name: 'file',
       header: {
@@ -54,8 +54,8 @@ function uploadFile(filePath, onProgress) {
       success(res) {
         try {
           const data = JSON.parse(res.data)
-          if (data.code === 200) {
-            resolve(data)
+          if (data.errorCode === 0) {
+            resolve({ data: { url: data.data && data.data[0] } })
           } else {
             reject(data)
           }

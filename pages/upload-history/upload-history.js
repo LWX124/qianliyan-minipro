@@ -26,10 +26,11 @@ Page({
 
   loadRecords() {
     this.setData({ loading: true })
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
     return request({
-      url: '/file/list',
+      url: '/api/v1/wx/accid/list',
       method: 'GET',
-      data: { page: this.data.page, pageSize: 20 }
+      data: { thirdSessionKey, page: this.data.page, pageSize: 20 }
     }).then(res => {
       const list = (res.data && res.data.list) || []
       const hasMore = list.length >= 20
@@ -50,9 +51,9 @@ Page({
       wx.previewMedia({
         sources: [{ url: item.video, type: 'video' }]
       })
-    } else if (item.imgUrl) {
+    } else if (item.accImg) {
       // 预览图片
-      const urls = item.imgUrl.split(',')
+      const urls = item.accImg.split(',')
       wx.previewImage({ urls })
     }
   }

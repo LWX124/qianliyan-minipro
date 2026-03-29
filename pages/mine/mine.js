@@ -9,7 +9,10 @@ Page({
       caseReward: 0,
       taskReward: 0
     },
-    showWelfareModal: false
+    showWelfareModal: false,
+    showProfileModal: false,
+    tempAvatarUrl: '',
+    tempNickname: ''
   },
 
   onShow() {
@@ -38,36 +41,32 @@ Page({
       userInfo: app.globalData.userInfo
     })
 
-    // 如果已登录，获取个人中心数据
     if (app.globalData.isLogin) {
       this.loadPersonalData()
+      // 登录成功但没有头像昵称，弹出设置弹窗
+      if (!app.globalData.userInfo.headImg || !app.globalData.userInfo.name) {
+        this.setData({ showProfileModal: true, tempAvatarUrl: '', tempNickname: '' })
+      }
     }
   },
+// PLACEHOLDER_PART2
 
   loadPersonalData() {
     const { request } = require('../../utils/request')
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
     request({
-      url: '/user/personalCenter',
-      method: 'GET'
+      url: '/api/v1/wx/user/stats',
+      method: 'GET',
+      data: { thirdSessionKey }
     }).then(res => {
-      if (res.code === 200) {
-        this.setData({
-          statistics: {
-            totalReward: res.data.totalReward || 0,
-            caseReward: res.data.caseReward || 0,
-            taskReward: res.data.taskReward || 0
-          }
-        })
+      if (res.errorCode === 0) {
+        this.setData({ 'statistics.totalReward': res.data.totalReward || 0 })
       }
     }).catch(err => {
-      if (err.code === 530) {
-        // token 过期，切换到游客状态
+      if (err.code === 530 || err.errorCode === 530) {
         app.logout()
         this.setData({ isLogin: false })
         wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
-      } else {
-        console.error('获取个人数据失败:', err)
-        wx.showToast({ title: '获取数据失败', icon: 'none' })
       }
     })
   },
@@ -75,17 +74,82 @@ Page({
   handleLogin() {
     app.login({
       success: () => {
-        this.setData({
-          isLogin: true,
-          userInfo: app.globalData.userInfo
-        })
+        this.setData({ isLogin: true, userInfo: app.globalData.userInfo })
         this.loadPersonalData()
-        wx.showToast({ title: '登录成功', icon: 'success' })
+        // 登录成功后弹出头像昵称设置
+        if (!app.globalData.userInfo.headImg || !app.globalData.userInfo.name) {
+          this.setData({ showProfileModal: true, tempAvatarUrl: '', tempNickname: '' })
+        }
       },
       fail: (msg) => {
         wx.showToast({ title: msg || '登录失败', icon: 'none' })
       }
     })
+  },
+
+  // 弹窗中选择头像
+  onChooseAvatar(e) {
+    const avatarUrl = e.detail.avatarUrl
+    if (avatarUrl) {
+      this.setData({ tempAvatarUrl: avatarUrl })
+    }
+  },
+
+  // 弹窗中获取昵称
+  onTempNicknameChange(e) {
+    this.setData({ tempNickname: (e.detail.value || '').trim() })
+  },
+
+  // 确认设置头像昵称
+  confirmProfile() {
+    const { tempAvatarUrl, tempNickname } = this.data
+    if (!tempAvatarUrl && !tempNickname) {
+      wx.showToast({ title: '请选择头像或昵称', icon: 'none' })
+      return
+    }
+// PLACEHOLDER_PART3
+    const { uploadFile, request } = require('../../utils/request')
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+
+    wx.showLoading({ title: '保存中' })
+
+    let uploadPromise = Promise.resolve(tempAvatarUrl)
+    // 如果有头像，先上传文件
+    if (tempAvatarUrl) {
+      uploadPromise = uploadFile(tempAvatarUrl).then(res => res.data.url || res.data)
+    }
+
+    uploadPromise.then(headImgUrl => {
+      const profileData = { thirdSessionKey }
+      if (headImgUrl) profileData.headImg = headImgUrl
+      if (tempNickname) profileData.wxname = tempNickname
+      return request({
+        url: '/api/v1/wx/user/updateProfile',
+        method: 'POST',
+        data: profileData
+      })
+    }).then(res => {
+      wx.hideLoading()
+      if (res.errorCode === 0) {
+        const info = res.data
+        app.globalData.userInfo.headImg = info.headImg || app.globalData.userInfo.headImg
+        app.globalData.userInfo.name = info.wxname || app.globalData.userInfo.name
+        this.setData({
+          showProfileModal: false,
+          userInfo: app.globalData.userInfo
+        })
+        wx.showToast({ title: '设置成功', icon: 'success' })
+      } else {
+        wx.showToast({ title: '保存失败', icon: 'none' })
+      }
+    }).catch(() => {
+      wx.hideLoading()
+      wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+    })
+  },
+
+  skipProfile() {
+    this.setData({ showProfileModal: false })
   },
 
   handleLogout() {
@@ -96,8 +160,7 @@ Page({
         if (res.confirm) {
           app.logout()
           this.setData({
-            isLogin: false,
-            userInfo: {},
+            isLogin: false, userInfo: {},
             statistics: { totalReward: 0, caseReward: 0, taskReward: 0 }
           })
           wx.showToast({ title: '已退出登录', icon: 'success' })
@@ -109,22 +172,23 @@ Page({
   copyId() {
     wx.setClipboardData({
       data: String(this.data.userInfo.userId),
-      success: () => {
-        wx.showToast({ title: '已复制', icon: 'success' })
-      }
+      success: () => wx.showToast({ title: '已复制', icon: 'success' })
     })
+  },
+
+  goRewardRecords() {
+    if (!app.globalData.isLogin) {
+      app.login({ success: () => wx.navigateTo({ url: '/pages/reward-records/reward-records' }),
+        fail: (msg) => wx.showToast({ title: msg || '登录失败', icon: 'none' }) })
+    } else {
+      wx.navigateTo({ url: '/pages/reward-records/reward-records' })
+    }
   },
 
   goUploadHistory() {
     if (!app.globalData.isLogin) {
-      app.login({
-        success: () => {
-          wx.navigateTo({ url: '/pages/upload-history/upload-history' })
-        },
-        fail: (msg) => {
-          wx.showToast({ title: msg || '登录失败', icon: 'none' })
-        }
-      })
+      app.login({ success: () => wx.navigateTo({ url: '/pages/upload-history/upload-history' }),
+        fail: (msg) => wx.showToast({ title: msg || '登录失败', icon: 'none' }) })
     } else {
       wx.navigateTo({ url: '/pages/upload-history/upload-history' })
     }
@@ -134,18 +198,10 @@ Page({
     wx.showToast({ title: '开发中，敬请期待！', icon: 'none' })
   },
 
-  onWelfare() {
-    this.setData({ showWelfareModal: true })
-  },
-
-  closeWelfareModal() {
-    this.setData({ showWelfareModal: false })
-  },
+  onWelfare() { this.setData({ showWelfareModal: true }) },
+  closeWelfareModal() { this.setData({ showWelfareModal: false }) },
 
   onShareAppMessage() {
-    return {
-      title: '拍事故 - 事故快拍',
-      path: '/pages/index/index'
-    }
+    return { title: '拍事故 - 事故快拍', path: '/pages/index/index' }
   }
 })

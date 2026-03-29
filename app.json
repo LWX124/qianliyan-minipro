@@ -4,7 +4,8 @@
     "pages/record-video/record-video",
     "pages/take-photo/take-photo",
     "pages/mine/mine",
-    "pages/upload-history/upload-history"
+    "pages/upload-history/upload-history",
+    "pages/reward-records/reward-records"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",

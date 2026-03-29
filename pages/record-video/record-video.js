@@ -1,4 +1,5 @@
 const { request, uploadFile } = require('../../utils/request')
+const app = getApp()
 
 Page({
   data: {
@@ -46,39 +47,47 @@ Page({
   uploadVideo() {
     this.setData({ uploading: true, uploadProgress: 0 })
 
-    let lng = '', lat = ''
-    wx.getLocation({
-      type: 'gcj02',
-      success: (loc) => {
-        lng = loc.longitude
-        lat = loc.latitude
-      },
-      complete: () => {
-        uploadFile(this.data.videoPath, (progress) => {
-          this.setData({ uploadProgress: progress })
-        }).then(res => {
-          const fileUrl = res.data.url || res.data
-          return request({
-            url: '/AccidentRecord/addVideo',
-            method: 'POST',
-            data: {
-              video: fileUrl,
-              type: 2,
-              source: require('../../config/index').source,
-              lng: lng,
-              lat: lat
-            }
-          })
-        }).then(() => {
-          this.setData({ uploading: false })
-          wx.showToast({ title: '上传成功', icon: 'success' })
-          setTimeout(() => wx.navigateBack(), 1500)
-        }).catch(err => {
-          this.setData({ uploading: false })
-          wx.showToast({ title: '上传失败，请重试', icon: 'none' })
+    const doUpload = (lng, lat) => {
+      uploadFile(this.data.videoPath, (progress) => {
+        this.setData({ uploadProgress: progress })
+      }).then(res => {
+        const fileUrl = res.data.url || res.data
+        const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+        return request({
+          url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
+          method: 'POST',
+          data: {
+            url: fileUrl,
+            lng: lng,
+            lat: lat
+          }
         })
-      }
-    })
+      }).then(() => {
+        this.setData({ uploading: false })
+        wx.showToast({ title: '上传成功', icon: 'success' })
+        setTimeout(() => wx.navigateBack(), 1500)
+      }).catch(err => {
+        this.setData({ uploading: false })
+        wx.showToast({ title: '上传失败，请重试', icon: 'none' })
+      })
+    }
+
+    // 优先使用缓存位置
+    const cached = app.globalData.location
+    if (cached) {
+      doUpload(cached.lng, cached.lat)
+    } else {
+      wx.getLocation({
+        type: 'gcj02',
+        success: (loc) => {
+          app.globalData.location = { lng: loc.longitude, lat: loc.latitude }
+          doUpload(loc.longitude, loc.latitude)
+        },
+        fail: () => {
+          doUpload('', '')
+        }
+      })
+    }
   },
 
   onShareAppMessage() {
