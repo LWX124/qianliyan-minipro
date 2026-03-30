@@ -56,5 +56,40 @@ Page({
       const urls = item.accImg.split(',')
       wx.previewImage({ urls })
     }
+  },
+
+  confirmReceive(e) {
+    const item = e.currentTarget.dataset.item
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    wx.showLoading({ title: '请稍候...' })
+    request({
+      url: '/api/v1/wx/accid/transferPackage',
+      method: 'GET',
+      data: { thirdSessionKey, accid: item.id }
+    }).then(res => {
+      wx.hideLoading()
+      if (res.errorCode !== 0 || !res.data) {
+        wx.showToast({ title: res.errorMsg || '获取转账信息失败', icon: 'none' })
+        return
+      }
+      const { mchId, appId, packageInfo } = res.data
+      wx.requestMerchantTransfer({
+        mchId: mchId,
+        appId: appId,
+        package: packageInfo,
+        success: () => {
+          wx.showToast({ title: '收款成功', icon: 'success' })
+          this.setData({ page: 1, hasMore: true })
+          this.loadRecords()
+        },
+        fail: (err) => {
+          console.log('confirmReceive fail', err)
+          wx.showToast({ title: '收款取消或失败', icon: 'none' })
+        }
+      })
+    }).catch(() => {
+      wx.hideLoading()
+      wx.showToast({ title: '网络错误', icon: 'none' })
+    })
   }
 })
