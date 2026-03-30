@@ -18,7 +18,7 @@ function request(options) {
       data: options.data || {},
       header: header,
       success(res) {
-        if (res.data.code === 530) {
+        if (res.data.errorCode === 530) {
           // 未登录，跳转登录
           wx.removeStorageSync('thirdSessionKey')
           wx.showToast({ title: '请先登录', icon: 'none' })

@@ -16,7 +16,60 @@ App({
   },
 
   onLaunch() {
-    this.performLogin()
+    this.restoreLoginState()
+    // 默认跳转到【我的】Tab
+    wx.switchTab({ url: '/pages/mine/mine' })
+  },
+
+  // 尝试从本地缓存恢复登录状态
+  restoreLoginState() {
+    const cachedSession = wx.getStorageSync('thirdSessionKey')
+    const cachedUserInfo = wx.getStorageSync('userInfo')
+    if (cachedSession) {
+      console.log('[restoreLoginState] 发现本地缓存 session，尝试恢复')
+      this.globalData.thirdSessionKey = cachedSession
+      this.globalData.isLogin = true
+      if (cachedUserInfo) {
+        this.globalData.userInfo = cachedUserInfo
+      }
+      // 后台静默验证 session 是否仍有效
+      this.globalData.isCheckingLogin = true
+      this.validateSession({
+        success: () => {
+          console.log('[restoreLoginState] session 有效')
+          this.globalData.isCheckingLogin = false
+        },
+        fail: () => {
+          console.log('[restoreLoginState] session 已过期，重新登录')
+          this.globalData.isLogin = false
+          this.globalData.isCheckingLogin = false
+          this.performLogin()
+        }
+      })
+    } else {
+      this.performLogin()
+    }
+  },
+
+  // 验证已有 session 是否有效
+  validateSession(options = {}) {
+    wx.request({
+      url: config.baseUrl + '/api/v1/wx/user/stats',
+      method: 'GET',
+      data: { thirdSessionKey: this.globalData.thirdSessionKey },
+      success: (res) => {
+        if (res.data.errorCode === 0) {
+          options.success && options.success()
+        } else {
+          // session 无效，清除缓存
+          this.logout()
+          options.fail && options.fail()
+        }
+      },
+      fail: () => {
+        options.fail && options.fail()
+      }
+    })
   },
 
   // 执行登录操作
@@ -96,6 +149,7 @@ App({
                 }
 
                 wx.setStorageSync('thirdSessionKey', sessionId)
+                wx.setStorageSync('userInfo', this.globalData.userInfo)
 
                 // 执行当前回调
                 options.success && options.success()
@@ -143,9 +197,11 @@ App({
   // 登出方法
   logout() {
     wx.removeStorageSync('thirdSessionKey')
+    wx.removeStorageSync('userInfo')
+    wx.removeStorageSync('profileSkipped')
     this.globalData.isLogin = false
     this.globalData.thirdSessionKey = ''
-    this.globalData.userInfo = { userId: 0, name: '' }
+    this.globalData.userInfo = { userId: 0, name: '', headImg: '' }
     this.globalData.loginCallbacks = []
   },
 

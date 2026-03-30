@@ -39,12 +39,6 @@
     <!-- 温馨提示 -->
     <view class="tips">
       <text class="tips-line tip-warning">温馨提示：不推荐拍照，通过率低</text>
-      <text class="tips-line tip-info">请务必点击"绑定认证"自动领取红包</text>
-    </view>
-
-    <!-- 绑定认证按钮 -->
-    <view class="bind-btn" bindtap="onComingSoon">
-      <text>绑定认证</text>
     </view>
   </view>
 

@@ -5,7 +5,8 @@ Page({
     records: [],
     loading: false,
     page: 1,
-    hasMore: true
+    hasMore: true,
+    playingVideo: ''
   },
 
   onShow() {
@@ -47,14 +48,22 @@ Page({
   viewDetail(e) {
     const item = e.currentTarget.dataset.item
     if (item.video) {
-      // 预览视频
-      wx.previewMedia({
-        sources: [{ url: item.video, type: 'video' }]
-      })
+      this.setData({ playingVideo: item.video })
+      // 等 video 组件渲染后请求全屏
+      setTimeout(() => {
+        const videoCtx = wx.createVideoContext('fullscreenVideo', this)
+        videoCtx.requestFullScreen({ direction: 0 })
+      }, 100)
     } else if (item.accImg) {
-      // 预览图片
       const urls = item.accImg.split(',')
       wx.previewImage({ urls })
+    }
+  },
+
+  onVideoFullscreenChange(e) {
+    // 退出全屏时清除视频
+    if (!e.detail.fullScreen) {
+      this.setData({ playingVideo: '' })
     }
   },
 

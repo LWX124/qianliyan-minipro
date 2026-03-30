@@ -43,8 +43,9 @@ Page({
 
     if (app.globalData.isLogin) {
       this.loadPersonalData()
-      // 登录成功但没有头像昵称，弹出设置弹窗
-      if (!app.globalData.userInfo.headImg || !app.globalData.userInfo.name) {
+      // 登录成功但没有头像昵称，且用户没有跳过过，才弹出设置弹窗
+      const profileSkipped = wx.getStorageSync('profileSkipped')
+      if (!app.globalData.userInfo.headImg && !app.globalData.userInfo.name && !profileSkipped) {
         this.setData({ showProfileModal: true, tempAvatarUrl: '', tempNickname: '' })
       }
     }
@@ -76,8 +77,9 @@ Page({
       success: () => {
         this.setData({ isLogin: true, userInfo: app.globalData.userInfo })
         this.loadPersonalData()
-        // 登录成功后弹出头像昵称设置
-        if (!app.globalData.userInfo.headImg || !app.globalData.userInfo.name) {
+        // 登录成功后，仅首次（无头像昵称且未跳过）弹出设置
+        const profileSkipped = wx.getStorageSync('profileSkipped')
+        if (!app.globalData.userInfo.headImg && !app.globalData.userInfo.name && !profileSkipped) {
           this.setData({ showProfileModal: true, tempAvatarUrl: '', tempNickname: '' })
         }
       },
@@ -134,6 +136,8 @@ Page({
         const info = res.data
         app.globalData.userInfo.headImg = info.headImg || app.globalData.userInfo.headImg
         app.globalData.userInfo.name = info.wxname || app.globalData.userInfo.name
+        wx.setStorageSync('userInfo', app.globalData.userInfo)
+        wx.removeStorageSync('profileSkipped')
         this.setData({
           showProfileModal: false,
           userInfo: app.globalData.userInfo
@@ -149,6 +153,7 @@ Page({
   },
 
   skipProfile() {
+    wx.setStorageSync('profileSkipped', true)
     this.setData({ showProfileModal: false })
   },
 

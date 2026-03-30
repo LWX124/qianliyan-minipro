@@ -46,4 +46,7 @@
       <text>加载中...</text>
     </view>
   </view>
+
+  <!-- 全屏视频播放器（隐藏，仅全屏时可见） -->
+  <video wx:if="{{playingVideo}}" id="fullscreenVideo" src="{{playingVideo}}" autoplay="{{true}}" style="width:1px;height:1px;position:fixed;left:-100px;top:-100px;" bindfullscreenchange="onVideoFullscreenChange"></video>
 </view>
