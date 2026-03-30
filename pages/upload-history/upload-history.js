@@ -87,9 +87,17 @@ Page({
         appId: appId,
         package: packageInfo,
         success: () => {
-          wx.showToast({ title: '收款成功', icon: 'success' })
-          this.setData({ page: 1, hasMore: true })
-          this.loadRecords()
+          // 通知后端用户已确认收款
+          const confirmSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+          request({
+            url: '/api/v1/wx/accid/confirmTransfer',
+            method: 'POST',
+            data: { thirdSessionKey: confirmSessionKey, accid: item.id }
+          }).finally(() => {
+            wx.showToast({ title: '收款成功', icon: 'success' })
+            this.setData({ page: 1, hasMore: true })
+            this.loadRecords()
+          })
         },
         fail: (err) => {
           console.log('confirmReceive fail', err)
