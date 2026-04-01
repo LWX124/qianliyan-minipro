@@ -1,4 +1,5 @@
 const { request, uploadFile } = require('../../utils/request')
+const config = require('../../config/index')
 const app = getApp()
 
 Page({
@@ -64,6 +65,11 @@ Page({
         })
       }).then(() => {
         this.setData({ uploading: false })
+        wx.requestSubscribeMessage({
+          tmplIds: [config.subscribeTemplateId],
+          success() { },
+          fail() { }
+        })
         wx.showToast({ title: '上传成功', icon: 'success' })
         setTimeout(() => wx.navigateBack(), 1500)
       }).catch(err => {

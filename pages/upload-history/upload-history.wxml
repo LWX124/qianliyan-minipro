@@ -19,11 +19,11 @@
           <text class="record-type">{{item.video ? '视频' : '照片'}}</text>
           <text class="record-time">{{item.createTime}}</text>
           <view class="record-status">
-            <text class="status-tag {{item.status === 2 ? 'status-pass' : item.status === 3 ? 'status-fail' : 'status-pending'}}">
-              {{item.status === 2 ? '审核通过' : item.status === 3 ? '审核失败' : '待审核'}}
+            <text class="status-tag {{item.status === 4 ? 'status-claimed' : item.status === 2 ? 'status-pass' : item.status === 3 ? 'status-fail' : 'status-pending'}}">
+              {{item.status === 4 ? '奖励已领取' : item.status === 2 ? '审核通过' : item.status === 3 ? '审核失败' : '待审核'}}
             </text>
           </view>
-          <view class="reward-info" wx:if="{{item.rewardAmount != null || item.status === 2}}">
+          <view class="reward-info" wx:if="{{item.rewardAmount != null || item.status === 2 || item.status === 4}}">
             <text wx:if="{{item.rewardAmount != null}}" class="reward-amount">奖励：¥{{item.rewardAmount}}</text>
             <text wx:elif="{{item.status === 2}}" class="reward-pending">奖励处理中</text>
           </view>

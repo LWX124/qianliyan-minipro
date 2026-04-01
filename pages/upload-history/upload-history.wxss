@@ -95,6 +95,11 @@
   color: #faad14;
 }
 
+.status-claimed {
+  background: #e6f7ff;
+  color: #1890ff;
+}
+
 .reward-info {
   margin-top: 8rpx;
 }
