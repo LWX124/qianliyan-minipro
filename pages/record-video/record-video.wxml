@@ -1,42 +1,121 @@
 <view class="page">
-  <!-- 初始状态 -->
-  <block wx:if="{{status === 'idle'}}">
-    <view class="guide-area">
-      <view class="guide-icon">🎬</view>
-      <text class="guide-title">录制事故视频</text>
-      <text class="guide-desc">点击下方按钮，将调起相机进行录制</text>
-      <text class="guide-tip">视频最短10秒，最长5分钟</text>
+  <!-- Layer 1: Camera 预览 (idle/recording/paused) -->
+  <camera
+    wx:if="{{status !== 'preview' && status !== 'uploading' && !cameraError}}"
+    class="camera-preview"
+    device-position="{{devicePosition}}"
+    flash="{{flashMode}}"
+    resolution="high"
+    binderror="onCameraError"
+  />
+
+  <!-- Layer 1: Video 预览 (preview) -->
+  <video
+    wx:if="{{status === 'preview'}}"
+    class="preview-video"
+    src="{{videoPath}}"
+    controls
+    autoplay
+  />
+
+  <!-- 降级模式占位 -->
+  <view class="fallback-placeholder" wx:if="{{status !== 'preview' && cameraError}}">
+    <text class="fallback-text">点击下方按钮录制视频</text>
+    <text class="fallback-sub">将调用系统相机</text>
+  </view>
+
+  <!-- Layer 2: 自定义导航栏 (idle/preview) -->
+  <view class="custom-nav" wx:if="{{status === 'idle' || status === 'preview'}}"
+        style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-content">
+      <view class="nav-back" bindtap="goBack">
+        <view class="nav-back-arrow"></view>
+      </view>
+      <text class="nav-title">录制事故视频</text>
     </view>
-    <view class="controls">
+  </view>
+
+  <!-- Layer 3: 引导提示 -->
+  <view class="guide-overlay {{showGuide ? '' : 'guide-fade-out'}}"
+        wx:if="{{(status === 'idle' || status === 'recording') && !cameraError}}">
+    <view class="guide-tip-item">角度找好，左右拍全，拉近距离</view>
+    <view class="guide-tip-item">记得拍清品牌和车牌</view>
+    <view class="guide-duration">视频最短10秒，最长5分钟</view>
+  </view>
+
+  <!-- Layer 4: 底部控制区 -->
+  <view class="bottom-controls">
+
+    <!-- 缩放滑条 -->
+    <view class="zoom-bar" wx:if="{{supportZoom && status !== 'preview' && status !== 'uploading' && !cameraError}}">
+      <text class="zoom-label">1x</text>
+      <slider class="zoom-slider" min="10" max="50" value="{{zoomValue}}"
+              block-size="20" activeColor="#FFD700" backgroundColor="rgba(255,255,255,0.3)"
+              bindchanging="onZoomChange" bindchange="onZoomChange" />
+      <text class="zoom-label">5x</text>
+    </view>
+    <text class="zoom-display" wx:if="{{supportZoom && status !== 'preview' && status !== 'uploading' && !cameraError}}">{{zoomDisplay}}x</text>
+
+    <!-- 计时器 -->
+    <view class="timer-row" wx:if="{{status === 'recording' || status === 'paused'}}">
+      <view class="recording-dot {{status === 'paused' ? 'dot-blink' : 'dot-pulse'}}"></view>
+      <text class="timer-text {{status === 'paused' ? 'timer-blink' : ''}}">{{timerDisplay}}</text>
+      <text class="status-label">{{status === 'paused' ? '已暂停' : '录制中'}}</text>
+    </view>
+
+    <!-- idle 控制 -->
+    <view class="control-row" wx:if="{{status === 'idle'}}">
+      <view class="ctrl-placeholder"></view>
       <view class="record-btn" bindtap="startRecord">
         <view class="record-btn-inner"></view>
       </view>
-      <text class="control-hint">点击开始录制</text>
+      <view class="switch-btn" bindtap="switchCamera" wx:if="{{!cameraError}}">
+        <text class="switch-text">翻转</text>
+      </view>
+      <view class="ctrl-placeholder" wx:else></view>
     </view>
-  </block>
 
-  <!-- 预览状态 -->
-  <block wx:if="{{status === 'preview'}}">
-    <video class="preview-video" src="{{videoPath}}" controls autoplay></video>
-    <view class="video-info">
-      <text class="duration-text">视频时长：{{durationDisplay}}</text>
+    <!-- recording 控制 -->
+    <view class="control-row" wx:if="{{status === 'recording'}}">
+      <view class="switch-btn" bindtap="switchCamera">
+        <text class="switch-text">翻转</text>
+      </view>
+      <view class="stop-btn" bindtap="stopRecord">
+        <view class="stop-btn-inner"></view>
+      </view>
+      <view class="pause-btn" bindtap="pauseRecord" wx:if="{{supportPause}}">
+        <view class="pause-icon-bar"></view>
+        <view class="pause-icon-bar"></view>
+      </view>
+      <view class="ctrl-placeholder" wx:else></view>
     </view>
-    <view class="controls">
-      <view class="btn-row">
-        <view class="cancel-btn" bindtap="reRecord">
-          <text>重新录制</text>
-        </view>
-        <view class="upload-btn" bindtap="uploadVideo">
-          <text>上传</text>
-        </view>
+
+    <!-- paused 控制 -->
+    <view class="control-row" wx:if="{{status === 'paused'}}">
+      <view class="ctrl-placeholder"></view>
+      <view class="resume-btn" bindtap="resumeRecord">
+        <view class="resume-triangle"></view>
+      </view>
+      <view class="stop-btn-small" bindtap="stopRecord">
+        <view class="stop-square"></view>
       </view>
     </view>
-  </block>
 
-  <!-- 上传中 -->
+    <!-- preview 控制 -->
+    <view class="control-row" wx:if="{{status === 'preview'}}">
+      <view class="action-btn cancel-btn" bindtap="reRecord"><text>重新录制</text></view>
+      <view class="action-btn upload-btn" bindtap="uploadVideo"><text>上传</text></view>
+    </view>
+  </view>
+
+  <!-- 上传遮罩 -->
   <view class="uploading-mask" wx:if="{{uploading}}">
     <view class="uploading-content">
-      <text class="uploading-text">上传中... {{uploadProgress}}%</text>
+      <view class="uploading-spinner">
+        <view class="spinner-dot" wx:for="{{3}}" wx:key="*this"></view>
+      </view>
+      <text class="uploading-label" wx:if="{{uploadProgress > 0 && uploadProgress < 100}}">上传中 {{uploadProgress}}%</text>
+      <text class="uploading-label" wx:else>上传中...</text>
     </view>
   </view>
 </view>

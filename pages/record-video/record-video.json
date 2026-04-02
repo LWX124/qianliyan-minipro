@@ -1,4 +1,5 @@
 {
   "navigationBarTitleText": "录制事故视频",
+  "navigationStyle": "custom",
   "disableScroll": true
 }
