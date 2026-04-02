@@ -6,17 +6,23 @@
     device-position="{{devicePosition}}"
     flash="{{flashMode}}"
     resolution="high"
+    bindinitdone="onCameraReady"
     binderror="onCameraError"
   />
 
   <!-- Layer 1: Video 预览 (preview) -->
-  <video
-    wx:if="{{status === 'preview'}}"
-    class="preview-video"
-    src="{{videoPath}}"
-    controls
-    autoplay
-  />
+  <view class="preview-container" wx:if="{{status === 'preview'}}">
+    <video
+      class="preview-video"
+      src="{{videoPath}}"
+      controls="{{false}}"
+      show-center-play-btn="{{true}}"
+      show-play-btn="{{false}}"
+      show-fullscreen-btn="{{false}}"
+      enable-progress-gesture="{{false}}"
+    />
+    <text class="preview-duration">{{durationDisplay}}</text>
+  </view>
 
   <!-- 降级模式占位 -->
   <view class="fallback-placeholder" wx:if="{{status !== 'preview' && cameraError}}">
@@ -24,14 +30,14 @@
     <text class="fallback-sub">将调用系统相机</text>
   </view>
 
-  <!-- Layer 2: 自定义导航栏 (idle/preview) -->
-  <view class="custom-nav" wx:if="{{status === 'idle' || status === 'preview'}}"
+  <!-- Layer 2: 自定义导航栏 (录制中也显示) -->
+  <view class="custom-nav" wx:if="{{status !== 'uploading'}}"
         style="padding-top: {{statusBarHeight}}px;">
     <view class="nav-content">
       <view class="nav-back" bindtap="goBack">
         <view class="nav-back-arrow"></view>
       </view>
-      <text class="nav-title">录制事故视频</text>
+      <text class="nav-title">录制视频</text>
     </view>
   </view>
 
@@ -60,51 +66,32 @@
     <view class="timer-row" wx:if="{{status === 'recording' || status === 'paused'}}">
       <view class="recording-dot {{status === 'paused' ? 'dot-blink' : 'dot-pulse'}}"></view>
       <text class="timer-text {{status === 'paused' ? 'timer-blink' : ''}}">{{timerDisplay}}</text>
-      <text class="status-label">{{status === 'paused' ? '已暂停' : '录制中'}}</text>
     </view>
 
-    <!-- idle 控制 -->
-    <view class="control-row" wx:if="{{status === 'idle'}}">
+    <!-- recording 控制: 5秒后显示暂停按钮 -->
+    <view class="control-row" wx:if="{{status === 'recording' && showPauseBtn}}">
       <view class="ctrl-placeholder"></view>
-      <view class="record-btn" bindtap="startRecord">
-        <view class="record-btn-inner"></view>
+      <view class="pause-circle-btn" bindtap="stopRecord">
+        <view class="pause-icon-bar"></view>
+        <view class="pause-icon-bar"></view>
       </view>
-      <view class="switch-btn" bindtap="switchCamera" wx:if="{{!cameraError}}">
-        <text class="switch-text">翻转</text>
-      </view>
-      <view class="ctrl-placeholder" wx:else></view>
-    </view>
-
-    <!-- recording 控制 -->
-    <view class="control-row" wx:if="{{status === 'recording'}}">
       <view class="switch-btn" bindtap="switchCamera">
-        <text class="switch-text">翻转</text>
-      </view>
-      <view class="stop-btn" bindtap="stopRecord">
-        <view class="stop-btn-inner"></view>
-      </view>
-      <view class="pause-btn" bindtap="pauseRecord" wx:if="{{supportPause}}">
-        <view class="pause-icon-bar"></view>
-        <view class="pause-icon-bar"></view>
-      </view>
-      <view class="ctrl-placeholder" wx:else></view>
-    </view>
-
-    <!-- paused 控制 -->
-    <view class="control-row" wx:if="{{status === 'paused'}}">
-      <view class="ctrl-placeholder"></view>
-      <view class="resume-btn" bindtap="resumeRecord">
-        <view class="resume-triangle"></view>
-      </view>
-      <view class="stop-btn-small" bindtap="stopRecord">
-        <view class="stop-square"></view>
+        <view class="switch-camera-icon"></view>
       </view>
     </view>
 
-    <!-- preview 控制 -->
-    <view class="control-row" wx:if="{{status === 'preview'}}">
-      <view class="action-btn cancel-btn" bindtap="reRecord"><text>重新录制</text></view>
-      <view class="action-btn upload-btn" bindtap="uploadVideo"><text>上传</text></view>
+    <!-- preview 控制: 重拍 + 确定 -->
+    <view class="control-row preview-row" wx:if="{{status === 'preview'}}">
+      <view class="rerecord-btn" bindtap="reRecord">
+        <view class="rerecord-icon-wrap">
+          <view class="rerecord-arrow"></view>
+        </view>
+        <text class="rerecord-text">重拍</text>
+      </view>
+      <view class="confirm-btn" bindtap="uploadVideo">
+        <view class="confirm-check"></view>
+        <text class="confirm-text">确定</text>
+      </view>
     </view>
   </view>
 

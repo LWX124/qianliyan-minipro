@@ -14,12 +14,27 @@
   height: 100%;
 }
 
-.preview-video {
+.preview-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.preview-container .preview-video {
+  width: 100%;
+  height: 100%;
+}
+
+.preview-duration {
+  position: absolute;
+  right: 24rpx;
+  bottom: 24rpx;
+  color: #fff;
+  font-size: 28rpx;
+  font-family: monospace;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 /* ========== 降级占位 ========== */
@@ -192,11 +207,6 @@
   animation: blink 1s step-end infinite;
 }
 
-.status-label {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 24rpx;
-}
-
 /* ========== 控制按钮行 ========== */
 .control-row {
   display: flex;
@@ -209,97 +219,23 @@
   width: 80rpx;
 }
 
-/* 录制按钮 (idle) */
-.record-btn {
+/* 暂停按钮 (黄色圆形) */
+.pause-circle-btn {
   width: 128rpx;
   height: 128rpx;
   border-radius: 50%;
-  border: 6rpx solid #fff;
+  border: 6rpx solid #FFD700;
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.record-btn-inner {
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 50%;
-  background: #ff4d4f;
-}
-
-/* 停止按钮 (recording) */
-.stop-btn {
-  width: 128rpx;
-  height: 128rpx;
-  border-radius: 50%;
-  border: 6rpx solid #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stop-btn-inner {
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 8rpx;
-  background: #ff4d4f;
-}
-
-/* 暂停按钮 */
-.pause-btn {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6rpx;
+  gap: 10rpx;
 }
 
 .pause-icon-bar {
-  width: 6rpx;
-  height: 28rpx;
-  background: #fff;
-  border-radius: 3rpx;
-}
-
-/* 继续按钮 */
-.resume-btn {
-  width: 128rpx;
-  height: 128rpx;
-  border-radius: 50%;
-  border: 6rpx solid #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.resume-triangle {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 20rpx 0 20rpx 36rpx;
-  border-color: transparent transparent transparent #fff;
-  margin-left: 8rpx;
-}
-
-/* 小停止按钮 (paused) */
-.stop-btn-small {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stop-square {
-  width: 28rpx;
-  height: 28rpx;
+  width: 8rpx;
+  height: 36rpx;
+  background: #FFD700;
   border-radius: 4rpx;
-  background: #ff4d4f;
 }
 
 /* 切换摄像头 */
@@ -313,30 +249,96 @@
   justify-content: center;
 }
 
-.switch-text {
-  color: #fff;
-  font-size: 22rpx;
+.switch-camera-icon {
+  width: 40rpx;
+  height: 36rpx;
+  border: 4rpx solid #fff;
+  border-radius: 6rpx;
+  position: relative;
 }
 
-/* preview 按钮 */
-.action-btn {
-  width: 240rpx;
-  height: 88rpx;
-  border-radius: 44rpx;
+.switch-camera-icon::after {
+  content: '';
+  position: absolute;
+  top: -12rpx;
+  left: 8rpx;
+  width: 16rpx;
+  height: 10rpx;
+  border-left: 4rpx solid #fff;
+  border-top: 4rpx solid #fff;
+  border-right: 4rpx solid #fff;
+  border-radius: 4rpx 4rpx 0 0;
+}
+
+/* 重拍按钮 */
+.preview-row {
+  justify-content: center;
+  gap: 120rpx;
+}
+
+.rerecord-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 30rpx;
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.6);
 }
 
-.cancel-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+.rerecord-icon-wrap {
+  width: 44rpx;
+  height: 44rpx;
+  border: 4rpx solid #fff;
+  border-right-color: transparent;
+  border-radius: 50%;
+  position: relative;
 }
 
-.upload-btn {
-  background: #ff4d4f;
+.rerecord-arrow {
+  position: absolute;
+  top: -4rpx;
+  right: -2rpx;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10rpx 12rpx 0;
+  border-color: transparent #fff transparent transparent;
+}
+
+.rerecord-text {
   color: #fff;
+  font-size: 24rpx;
+  margin-top: 6rpx;
+}
+
+/* 确定按钮 (黄色) */
+.confirm-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  background: #FFD700;
+}
+
+.confirm-check {
+  width: 28rpx;
+  height: 16rpx;
+  border-left: 5rpx solid #333;
+  border-bottom: 5rpx solid #333;
+  transform: rotate(-45deg);
+  margin-bottom: 4rpx;
+}
+
+.confirm-text {
+  color: #333;
+  font-size: 24rpx;
+  font-weight: 500;
+  margin-top: 6rpx;
 }
 
 /* ========== 上传遮罩 ========== */

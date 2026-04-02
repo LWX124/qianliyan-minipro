@@ -27,9 +27,16 @@ Page({
     // 引导提示
     showGuide: true,
 
+    // 暂停按钮延迟显示
+    showPauseBtn: false,
+
     // 预览
     videoPath: '',
     durationDisplay: '',
+
+    // 位置信息
+    longitude: '',
+    latitude: '',
 
     // 上传
     uploading: false,
@@ -68,6 +75,9 @@ Page({
         })
       }
     })
+
+    // 进入页面立即获取位置
+    this._fetchLocation()
   },
 
   onReady() {
@@ -76,12 +86,16 @@ Page({
     this._guideTimer = null
   },
 
+  // 相机初始化完成后自动开始录制
+  onCameraReady() {
+    if (this.data.status === 'idle') {
+      this.startRecord()
+    }
+  },
+
   onUnload() {
     this._stopTimer()
-    if (this._guideTimer) {
-      clearTimeout(this._guideTimer)
-      this._guideTimer = null
-    }
+    this._clearGuideTimer()
     const s = this.data.status
     if (s === 'recording' || s === 'paused') {
       this.cameraCtx.stopRecord({ success() {}, fail() {} })
@@ -108,7 +122,8 @@ Page({
     this.setData({
       elapsedSeconds: 0,
       timerDisplay: '00:00',
-      showGuide: true
+      showGuide: true,
+      showPauseBtn: false
     })
 
     this.cameraCtx.startRecord({
@@ -117,17 +132,15 @@ Page({
         this._onRecordComplete(res)
       },
       success: () => {
-        // camera 真正开始录制后再切换 UI 状态
         this.setData({ status: 'recording' })
         this._startTimer()
 
-        // 5秒后隐藏引导
+        // 5秒后隐藏引导并显示暂停按钮
         this._guideTimer = setTimeout(() => {
-          this.setData({ showGuide: false })
+          this.setData({ showGuide: false, showPauseBtn: true })
           this._guideTimer = null
         }, 5000)
 
-        // 启用返回拦截
         if (wx.enableAlertBeforeUnload) {
           wx.enableAlertBeforeUnload({ message: '录制中，确定要退出吗？' })
         }
@@ -140,25 +153,7 @@ Page({
     })
   },
 
-  pauseRecord() {
-    if (!this.data.supportPause) return
-    this.cameraCtx.pauseRecord({
-      success: () => {
-        this._stopTimer()
-        this.setData({ status: 'paused' })
-      }
-    })
-  },
-
-  resumeRecord() {
-    this.cameraCtx.resumeRecord({
-      success: () => {
-        this._startTimer()
-        this.setData({ status: 'recording' })
-      }
-    })
-  },
-
+  // 暂停按钮：停止录制并进入预览
   stopRecord() {
     const s = this.data.status
     if (s !== 'recording' && s !== 'paused') return
@@ -168,7 +163,9 @@ Page({
       wx.showToast({ title: '视频至少需要10秒，还需' + remaining + '秒', icon: 'none' })
       return
     }
+
     this._stopTimer()
+    this._clearGuideTimer()
     this.cameraCtx.stopRecord({
       success: (res) => {
         this._onRecordComplete(res)
@@ -182,6 +179,7 @@ Page({
 
   _onRecordComplete(res) {
     this._stopTimer()
+    this._clearGuideTimer()
     if (wx.disableAlertBeforeUnload) wx.disableAlertBeforeUnload()
 
     const dur = this.data.elapsedSeconds
@@ -217,6 +215,13 @@ Page({
     if (this._timerInterval) {
       clearInterval(this._timerInterval)
       this._timerInterval = null
+    }
+  },
+
+  _clearGuideTimer() {
+    if (this._guideTimer) {
+      clearTimeout(this._guideTimer)
+      this._guideTimer = null
     }
   },
 
@@ -269,56 +274,63 @@ Page({
       videoPath: '',
       durationDisplay: '',
       showGuide: true,
+      showPauseBtn: false,
       zoomValue: 10,
       zoomDisplay: '1.0'
     })
+    // 重拍：自动重新开始录制
+    this.startRecord()
   },
 
   uploadVideo() {
     if (this.data.uploading) return
     this.setData({ uploading: true, uploadProgress: 0 })
 
-    const doUpload = (lng, lat) => {
-      uploadFile(this.data.videoPath, (progress) => {
-        this.setData({ uploadProgress: progress })
-      }).then(res => {
-        const fileUrl = res.data.url || res.data
-        const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
-        return request({
-          url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
-          method: 'POST',
-          data: { url: fileUrl, lng: lng, lat: lat }
-        })
-      }).then(() => {
-        this.setData({ uploading: false })
-        wx.requestSubscribeMessage({
-          tmplIds: [config.subscribeTemplateId],
-          success() { },
-          fail() { }
-        })
-        wx.showToast({ title: '上传成功', icon: 'success' })
-        setTimeout(() => wx.navigateBack(), 1500)
-      }).catch(() => {
-        this.setData({ uploading: false })
-        wx.showToast({ title: '上传失败，请重试', icon: 'none' })
-      })
-    }
+    const lng = this.data.longitude
+    const lat = this.data.latitude
 
+    uploadFile(this.data.videoPath, (progress) => {
+      this.setData({ uploadProgress: progress })
+    }).then(res => {
+      const fileUrl = res.data.url || res.data
+      const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+      return request({
+        url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
+        method: 'POST',
+        data: { url: fileUrl, lng: lng, lat: lat }
+      })
+    }).then(() => {
+      this.setData({ uploading: false })
+      wx.requestSubscribeMessage({
+        tmplIds: [config.subscribeTemplateId],
+        success() { },
+        fail() { }
+      })
+      wx.showToast({ title: '上传成功', icon: 'success' })
+      setTimeout(() => wx.navigateBack(), 1500)
+    }).catch(() => {
+      this.setData({ uploading: false })
+      wx.showToast({ title: '上传失败，请重试', icon: 'none' })
+    })
+  },
+
+  // ========== 获取位置 ==========
+  _fetchLocation() {
     const cached = app.globalData.location
     if (cached) {
-      doUpload(cached.lng, cached.lat)
-    } else {
-      wx.getLocation({
-        type: 'gcj02',
-        success: (loc) => {
-          app.globalData.location = { lng: loc.longitude, lat: loc.latitude }
-          doUpload(loc.longitude, loc.latitude)
-        },
-        fail: () => {
-          doUpload('', '')
-        }
-      })
+      this.setData({ longitude: cached.lng, latitude: cached.lat })
+      return
     }
+    wx.getLocation({
+      type: 'gcj02',
+      success: (loc) => {
+        app.globalData.location = { lng: loc.longitude, lat: loc.latitude }
+        this.setData({ longitude: loc.longitude, latitude: loc.latitude })
+      },
+      fail: () => {
+        this.setData({ longitude: '', latitude: '' })
+      }
+    })
   },
 
   // ========== 降级方案 ==========

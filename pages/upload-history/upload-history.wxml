@@ -27,7 +27,7 @@
             <text wx:if="{{item.rewardAmount != null}}" class="reward-amount">奖励：¥{{item.rewardAmount}}</text>
             <text wx:elif="{{item.status === 2}}" class="reward-pending">奖励处理中</text>
           </view>
-          <view wx:if="{{item.billStatus === 2 && item.packageInfo}}" class="confirm-receive-wrap" catchtap="confirmReceive" data-item="{{item}}">
+          <view wx:if="{{item.billStatus == 2}}" class="confirm-receive-wrap" catchtap="confirmReceive" data-item="{{item}}">
             <text class="confirm-receive-btn">确认收款</text>
           </view>
           <text class="record-reason" wx:if="{{item.reason}}">原因: {{item.reason}}</text>
