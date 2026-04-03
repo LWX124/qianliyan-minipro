@@ -158,9 +158,9 @@ Page({
     const s = this.data.status
     if (s !== 'recording' && s !== 'paused') return
 
-    if (this.data.elapsedSeconds < 10) {
-      const remaining = 10 - this.data.elapsedSeconds
-      wx.showToast({ title: '视频至少需要10秒，还需' + remaining + '秒', icon: 'none' })
+    if (this.data.elapsedSeconds < 5) {
+      const remaining = 5 - this.data.elapsedSeconds
+      wx.showToast({ title: '视频至少需要5秒，还需' + remaining + '秒', icon: 'none' })
       return
     }
 
@@ -344,8 +344,8 @@ Page({
       success: (res) => {
         const file = res.tempFiles[0]
         const dur = Math.round(file.duration)
-        if (dur < 10) {
-          wx.showToast({ title: '视频需要至少10秒，当前' + dur + '秒', icon: 'none' })
+        if (dur < 5) {
+          wx.showToast({ title: '视频需要至少5秒，当前' + dur + '秒', icon: 'none' })
           return
         }
         const min = String(Math.floor(dur / 60)).padStart(2, '0')

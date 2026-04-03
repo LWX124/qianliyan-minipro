@@ -87,12 +87,11 @@ Page({
         appId: appId,
         package: packageInfo,
         success: () => {
-          // 通知后端用户已确认收款
+          // 通知后端用户已确认收款（POST + @RequestParam 需要拼到 URL query）
           const confirmSessionKey = wx.getStorageSync('thirdSessionKey') || ''
           request({
-            url: '/api/v1/wx/accid/confirmTransfer',
-            method: 'POST',
-            data: { thirdSessionKey: confirmSessionKey, accid: item.id }
+            url: '/api/v1/wx/accid/confirmTransfer?thirdSessionKey=' + encodeURIComponent(confirmSessionKey) + '&accid=' + item.id,
+            method: 'POST'
           }).finally(() => {
             wx.showToast({ title: '收款成功', icon: 'success' })
             this.setData({ page: 1, hasMore: true })

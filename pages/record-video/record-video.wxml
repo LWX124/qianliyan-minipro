@@ -46,7 +46,7 @@
         wx:if="{{(status === 'idle' || status === 'recording') && !cameraError}}">
     <view class="guide-tip-item">角度找好，左右拍全，拉近距离</view>
     <view class="guide-tip-item">记得拍清品牌和车牌</view>
-    <view class="guide-duration">视频最短10秒，最长5分钟</view>
+    <view class="guide-duration">视频最短5秒，最长5分钟</view>
   </view>
 
   <!-- Layer 4: 底部控制区 -->
