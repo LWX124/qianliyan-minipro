@@ -72,7 +72,7 @@ Page({
 
       // 保存事故记录（图片用逗号分隔）
       const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
-      await request({
+      const addRes = await request({
         url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
         method: 'POST',
         data: {
@@ -83,6 +83,23 @@ Page({
       })
 
       this.setData({ uploading: false })
+
+      // 判断业务错误码
+      if (addRes && addRes.errorCode === 5003) {
+        wx.removeStorageSync('phoneBound')
+        wx.showModal({
+          title: '需要授权手机号',
+          content: '上传记录需要先授权手机号，请返回首页完成授权后再上传',
+          showCancel: false,
+          confirmText: '我知道了'
+        })
+        return
+      }
+      if (addRes && addRes.errorCode !== 0) {
+        wx.showToast({ title: addRes.errorMsg || '上传失败，请重试', icon: 'none' })
+        return
+      }
+
       wx.requestSubscribeMessage({
         tmplIds: [config.subscribeTemplateId],
         success() { },

@@ -299,8 +299,23 @@ Page({
         method: 'POST',
         data: { url: fileUrl, lng: lng, lat: lat }
       })
-    }).then(() => {
+    }).then(res => {
       this.setData({ uploading: false })
+      // 判断业务错误码
+      if (res && res.errorCode === 5003) {
+        wx.removeStorageSync('phoneBound')  // 清除本地缓存，下次进首页重新弹授权
+        wx.showModal({
+          title: '需要授权手机号',
+          content: '上传记录需要先授权手机号，请返回首页完成授权后再上传',
+          showCancel: false,
+          confirmText: '我知道了'
+        })
+        return
+      }
+      if (res && res.errorCode !== 0) {
+        wx.showToast({ title: res.errorMsg || '上传失败，请重试', icon: 'none' })
+        return
+      }
       wx.requestSubscribeMessage({
         tmplIds: [config.subscribeTemplateId],
         success() { },

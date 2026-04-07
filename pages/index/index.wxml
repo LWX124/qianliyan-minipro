@@ -54,6 +54,21 @@
     </view>
   </view>
 
+  <!-- 手机号授权底部弹窗 -->
+  <view class="phone-sheet-mask" wx:if="{{showPhoneModal}}" bindtap="skipPhoneBind">
+    <view class="phone-sheet" catchtap="">
+      <view class="phone-sheet-bar"></view>
+      <text class="phone-sheet-title">授权手机号</text>
+      <text class="phone-sheet-desc">为保障您的权益，上传事故视频需要绑定手机号，我们承诺不会泄露您的信息</text>
+      <button
+        class="phone-sheet-btn"
+        open-type="getPhoneNumber"
+        bindgetphonenumber="onGetPhoneNumber"
+      >一键授权手机号</button>
+      <view class="phone-sheet-skip" bindtap="skipPhoneBind">暂不授权</view>
+    </view>
+  </view>
+
   <!-- 福利官弹窗 -->
   <view class="modal-mask" wx:if="{{showWelfareModal}}" bindtap="closeWelfareModal">
     <view class="modal-content" catchtap="">

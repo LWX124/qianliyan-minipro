@@ -225,3 +225,89 @@
   border-radius: 40rpx;
   font-size: 28rpx;
 }
+
+.phone-auth-btn {
+  width: 100%;
+  background: #07c160;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+  margin-bottom: 24rpx;
+  border: none;
+  padding: 20rpx 0;
+}
+
+/* 底部弹起手机号授权 */
+.phone-sheet-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: -200rpx; /* 延伸到 tabbar 下方确保背景遮住 */
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+}
+
+.phone-sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 20rpx 40rpx 0;
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom)); /* 120rpx 覆盖 tabbar，再加安全区 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.phone-sheet-bar {
+  width: 80rpx;
+  height: 8rpx;
+  background: #e0e0e0;
+  border-radius: 4rpx;
+  margin-bottom: 32rpx;
+}
+
+.phone-sheet-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 16rpx;
+}
+
+.phone-sheet-desc {
+  font-size: 26rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 48rpx;
+  padding: 0 20rpx;
+}
+
+.phone-sheet-btn {
+  width: 100%;
+  background: #07c160;
+  color: #fff;
+  border-radius: 50rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  border: none;
+  padding: 24rpx 0;
+  margin-bottom: 24rpx;
+}
+
+.phone-sheet-btn::after {
+  border: none;
+}
+
+.phone-sheet-skip {
+  font-size: 28rpx;
+  color: #bbb;
+  padding: 16rpx 60rpx;
+}
+
+.phone-auth-btn::after {
+  border: none;
+}
