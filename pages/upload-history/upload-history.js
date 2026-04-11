@@ -34,16 +34,13 @@ Page({
       data: { thirdSessionKey, page: this.data.page, pageSize: 20 }
     }).then(res => {
       const list = (res.data && res.data.list) || []
-      // 标记转账是否过期（超过24小时）
+      // 标记转账是否过期（转账发起超过24小时）
       const now = Date.now()
       list.forEach(item => {
-        if (item.billStatus == 2 && item.transferTime) {
-          const transferTs = new Date(item.transferTime.replace(/-/g, '/')).getTime()
-          item.transferExpired = (now - transferTs) > 24 * 60 * 60 * 1000
-        } else if (item.billStatus == 2 && item.createTime) {
-          // 兜底：用 createTime 判断
-          const createTs = new Date(item.createTime.replace(/-/g, '/')).getTime()
-          item.transferExpired = (now - createTs) > 24 * 60 * 60 * 1000
+        if (item.billStatus == 2 && item.billCreateTime) {
+          // 用 biz_wxpay_bill.create_time（转账发起时间）判断
+          const billTs = new Date(item.billCreateTime.replace(/-/g, '/')).getTime()
+          item.transferExpired = (now - billTs) > 24 * 60 * 60 * 1000
         } else {
           item.transferExpired = false
         }
