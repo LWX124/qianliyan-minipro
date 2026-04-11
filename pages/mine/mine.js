@@ -16,10 +16,6 @@ Page({
   },
 
   onShow() {
-    // 同步自定义 tabBar 选中状态
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 1 })
-    }
     // 如果正在验证登录状态，轮询等待验证完成
     if (app.globalData.isCheckingLogin) {
       this._checkTimer = setInterval(() => {

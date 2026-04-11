@@ -9,7 +9,7 @@
   flex-direction: row;
   padding-bottom: env(safe-area-inset-bottom);
   box-sizing: content-box;
-  z-index: 1;
+  z-index: 999;
 }
 
 .tab-bar-border {

@@ -17,10 +17,6 @@ Page({
   },
 
   onShow() {
-    // 同步自定义 tabBar 选中状态
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ selected: 0 })
-    }
     this._requestLocation()
     // 登录完成后检查是否已绑定手机号
     this._checkPhoneBound()
@@ -99,10 +95,12 @@ Page({
     wx.showToast({ title: '可在上传时再次授权', icon: 'none' })
   },
 
-  // 控制自定义 tabBar 显隐
+  // 控制系统 tabBar 显隐
   _setTabBarHidden(hidden) {
-    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ hidden })
+    if (hidden) {
+      wx.hideTabBar({ animation: false })
+    } else {
+      wx.showTabBar({ animation: false })
     }
   },
 
