@@ -9,10 +9,7 @@ Page({
       caseReward: 0,
       taskReward: 0
     },
-    showWelfareModal: false,
-    showProfileModal: false,
-    tempAvatarUrl: '',
-    tempNickname: ''
+    showWelfareModal: false
   },
 
   onShow() {
@@ -43,14 +40,8 @@ Page({
 
     if (app.globalData.isLogin) {
       this.loadPersonalData()
-      // 登录成功但没有头像昵称，且用户没有跳过过，才弹出设置弹窗
-      const profileSkipped = wx.getStorageSync('profileSkipped')
-      if (!app.globalData.userInfo.headImg && !app.globalData.userInfo.name && !profileSkipped) {
-        this.setData({ showProfileModal: true, tempAvatarUrl: '', tempNickname: '' })
-      }
     }
   },
-// PLACEHOLDER_PART2
 
   loadPersonalData() {
     const { request } = require('../../utils/request')
@@ -77,84 +68,11 @@ Page({
       success: () => {
         this.setData({ isLogin: true, userInfo: app.globalData.userInfo })
         this.loadPersonalData()
-        // 登录成功后，仅首次（无头像昵称且未跳过）弹出设置
-        const profileSkipped = wx.getStorageSync('profileSkipped')
-        if (!app.globalData.userInfo.headImg && !app.globalData.userInfo.name && !profileSkipped) {
-          this.setData({ showProfileModal: true, tempAvatarUrl: '', tempNickname: '' })
-        }
       },
       fail: (msg) => {
         wx.showToast({ title: msg || '登录失败', icon: 'none' })
       }
     })
-  },
-
-  // 弹窗中选择头像
-  onChooseAvatar(e) {
-    const avatarUrl = e.detail.avatarUrl
-    if (avatarUrl) {
-      this.setData({ tempAvatarUrl: avatarUrl })
-    }
-  },
-
-  // 弹窗中获取昵称
-  onTempNicknameChange(e) {
-    this.setData({ tempNickname: (e.detail.value || '').trim() })
-  },
-
-  // 确认设置头像昵称
-  confirmProfile() {
-    const { tempAvatarUrl, tempNickname } = this.data
-    if (!tempAvatarUrl && !tempNickname) {
-      wx.showToast({ title: '请选择头像或昵称', icon: 'none' })
-      return
-    }
-// PLACEHOLDER_PART3
-    const { uploadFile, request } = require('../../utils/request')
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
-
-    wx.showLoading({ title: '保存中' })
-
-    let uploadPromise = Promise.resolve(tempAvatarUrl)
-    // 如果有头像，先上传文件
-    if (tempAvatarUrl) {
-      uploadPromise = uploadFile(tempAvatarUrl).then(res => res.data.url || res.data)
-    }
-
-    uploadPromise.then(headImgUrl => {
-      const profileData = { thirdSessionKey }
-      if (headImgUrl) profileData.headImg = headImgUrl
-      if (tempNickname) profileData.wxname = tempNickname
-      return request({
-        url: '/api/v1/wx/user/updateProfile',
-        method: 'POST',
-        data: profileData
-      })
-    }).then(res => {
-      wx.hideLoading()
-      if (res.errorCode === 0) {
-        const info = res.data
-        app.globalData.userInfo.headImg = info.headImg || app.globalData.userInfo.headImg
-        app.globalData.userInfo.name = info.wxname || app.globalData.userInfo.name
-        wx.setStorageSync('userInfo', app.globalData.userInfo)
-        wx.removeStorageSync('profileSkipped')
-        this.setData({
-          showProfileModal: false,
-          userInfo: app.globalData.userInfo
-        })
-        wx.showToast({ title: '设置成功', icon: 'success' })
-      } else {
-        wx.showToast({ title: '保存失败', icon: 'none' })
-      }
-    }).catch(() => {
-      wx.hideLoading()
-      wx.showToast({ title: '保存失败，请重试', icon: 'none' })
-    })
-  },
-
-  skipProfile() {
-    wx.setStorageSync('profileSkipped', true)
-    this.setData({ showProfileModal: false })
   },
 
   handleLogout() {

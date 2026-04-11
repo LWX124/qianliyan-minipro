@@ -1,10 +1,14 @@
 const { request } = require('../../utils/request')
+const config = require('../../config/index')
 const app = getApp()
 
 Page({
   data: {
     showWelfareModal: false,
-    showPhoneModal: false,   // 手机号授权弹窗
+    showPhoneModal: false,       // 手机号授权弹窗
+    showProfileSheet: false,     // 头像昵称授权弹窗
+    wxAvatarUrl: '',             // 微信头像
+    wxNickname: '',              // 微信昵称
     statusBarHeight: 20,
     navBarHeight: 64
   },
@@ -18,18 +22,122 @@ Page({
 
   onShow() {
     this._requestLocation()
-    // 登录完成后检查是否已绑定手机号
+    // 登录完成后依次检查：头像昵称 → 手机号
+    this._waitLoginThenCheck()
+  },
+
+  // 等登录完成后再检查资料
+  _waitLoginThenCheck() {
+    if (app.globalData.isCheckingLogin) {
+      this._checkTimer = setInterval(() => {
+        if (!app.globalData.isCheckingLogin) {
+          clearInterval(this._checkTimer)
+          this._checkProfileAndPhone()
+        }
+      }, 100)
+    } else {
+      this._checkProfileAndPhone()
+    }
+  },
+
+  onHide() {
+    if (this._checkTimer) clearInterval(this._checkTimer)
+  },
+
+  // 检查头像昵称 → 手机号
+  _checkProfileAndPhone() {
+    if (!app.globalData.isLogin) return
+
+    const userInfo = app.globalData.userInfo || {}
+    const profileDone = wx.getStorageSync('profileDone')
+
+    // 1. 先检查头像昵称
+    if (!userInfo.headImg && !userInfo.name && !profileDone) {
+      // 获取微信头像昵称用于展示
+      this._setTabBarHidden(true)
+      this.setData({
+        showProfileSheet: true,
+        wxAvatarUrl: '',
+        wxNickname: '微信用户'
+      })
+      return  // 头像昵称确认后会自动检查手机号
+    }
+
+    // 2. 再检查手机号
     this._checkPhoneBound()
   },
 
-  // 检查是否已绑定手机号，未绑定则弹出授权
+  // ---- 头像昵称弹窗 ----
+  onProfileMaskTap() {
+    // 点击遮罩不关闭，必须点确认
+  },
+
+  // 用户点击「确认使用该头像和昵称」按钮（open-type="chooseAvatar"）
+  onConfirmAvatar(e) {
+    const avatarUrl = e.detail.avatarUrl
+    if (!avatarUrl) return
+
+    // 先获取昵称：使用 wx.getUserProfile (基础库2.27+) 或直接用输入
+    // 微信小程序 chooseAvatar 只返回头像，昵称需要通过 nickname input 获取
+    // 这里先设置头像，然后弹出昵称输入
+    this.setData({ wxAvatarUrl: avatarUrl })
+    this._saveProfile(avatarUrl)
+  },
+
+  // 保存头像昵称到后端
+  _saveProfile(avatarUrl) {
+    const { uploadFile } = require('../../utils/request')
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+
+    wx.showLoading({ title: '保存中' })
+
+    let uploadPromise = Promise.resolve(avatarUrl)
+    if (avatarUrl) {
+      uploadPromise = uploadFile(avatarUrl).then(res => res.data.url || res.data)
+    }
+
+    uploadPromise.then(headImgUrl => {
+      const profileData = { thirdSessionKey }
+      if (headImgUrl) profileData.headImg = headImgUrl
+      return request({
+        url: '/api/v1/wx/user/updateProfile',
+        method: 'POST',
+        data: profileData
+      })
+    }).then(res => {
+      wx.hideLoading()
+      if (res.errorCode === 0) {
+        const info = res.data
+        app.globalData.userInfo.headImg = info.headImg || app.globalData.userInfo.headImg
+        app.globalData.userInfo.name = info.wxname || app.globalData.userInfo.name
+        wx.setStorageSync('userInfo', app.globalData.userInfo)
+        wx.setStorageSync('profileDone', '1')
+        this.setData({ showProfileSheet: false })
+        wx.showToast({ title: '设置成功', icon: 'success' })
+
+        // 头像昵称完成后，接着检查手机号
+        setTimeout(() => {
+          this._checkPhoneBound()
+        }, 500)
+      } else {
+        wx.showToast({ title: '保存失败', icon: 'none' })
+      }
+    }).catch(() => {
+      wx.hideLoading()
+      wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+    })
+  },
+
+  // ---- 手机号绑定 ----
   _checkPhoneBound() {
     const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
-    if (!thirdSessionKey) return  // 未登录，等登录后再检查
+    if (!thirdSessionKey) return
 
-    // 本地标记：已绑定过则不再弹
     const phoneBound = wx.getStorageSync('phoneBound')
-    if (phoneBound) return
+    if (phoneBound) {
+      this._setTabBarHidden(false)
+      return
+    }
 
     request({
       url: '/api/v1/wx/user/get',
@@ -37,33 +145,29 @@ Page({
       data: { thirdSessionKey }
     }).then(res => {
       if (res.errorCode === 0 && res.data && res.data.phone) {
-        // 已绑定，本地记录
         wx.setStorageSync('phoneBound', '1')
+        this._setTabBarHidden(false)
       } else {
-        // 未绑定，弹出授权弹窗，同时隐藏 tabBar
         this._setTabBarHidden(true)
         this.setData({ showPhoneModal: true })
       }
     }).catch(() => {
-      // 查询失败忽略，不影响正常使用
+      this._setTabBarHidden(false)
     })
   },
 
   // 微信手机号授权回调
   onGetPhoneNumber(e) {
     if (e.detail.errMsg !== 'getPhoneNumber:ok') {
-      // 用户拒绝授权
-      wx.showToast({ title: '未授权手机号，部分功能受限', icon: 'none' })
-      this._setTabBarHidden(false)
-      this.setData({ showPhoneModal: false })
+      // 用户拒绝，不关闭弹窗，提示必须绑定
+      wx.showToast({ title: '需要绑定手机号才能使用', icon: 'none' })
       return
     }
     const code = e.detail.code
     const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
     wx.showLoading({ title: '绑定中...' })
-    // bindPhone 后端用 @RequestParam，需用 form 格式而非 JSON
     wx.request({
-      url: require('../../config/index').baseUrl + '/api/v1/wx/user/bindPhone',
+      url: config.baseUrl + '/api/v1/wx/user/bindPhone',
       method: 'POST',
       header: { 'content-type': 'application/x-www-form-urlencoded' },
       data: 'thirdSessionKey=' + encodeURIComponent(thirdSessionKey) + '&code=' + encodeURIComponent(code),
@@ -82,17 +186,8 @@ Page({
       fail: () => {
         wx.hideLoading()
         wx.showToast({ title: '网络异常，请重试', icon: 'none' })
-        this._setTabBarHidden(false)
-        this.setData({ showPhoneModal: false })
       }
     })
-  },
-
-  // 跳过手机号绑定
-  skipPhoneBind() {
-    this._setTabBarHidden(false)
-    this.setData({ showPhoneModal: false })
-    wx.showToast({ title: '可在上传时再次授权', icon: 'none' })
   },
 
   // 控制系统 tabBar 显隐
@@ -112,10 +207,8 @@ Page({
       success: (res) => {
         const locationAuth = res.authSetting['scope.userLocation']
         if (locationAuth === undefined) {
-          // 从未请求过，直接请求
           this._getLocation()
         } else if (locationAuth === false) {
-          // 用户之前拒绝过，引导去设置页
           wx.showModal({
             title: '需要位置权限',
             content: '申请功能需要获取您的位置信息来记录事故地点，请在设置中开启位置权限',
@@ -133,7 +226,6 @@ Page({
             }
           })
         } else {
-          // 已授权，直接获取
           this._getLocation()
         }
       }
@@ -146,9 +238,7 @@ Page({
       success: (loc) => {
         app.globalData.location = { lng: loc.longitude, lat: loc.latitude }
       },
-      fail: () => {
-        // 获取失败，后续上传时再尝试
-      }
+      fail: () => {}
     })
   },
 

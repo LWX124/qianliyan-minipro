@@ -56,18 +56,31 @@
 
   </view>
 
-  <!-- 手机号授权底部弹窗 -->
-  <view class="phone-sheet-mask" wx:if="{{showPhoneModal}}" bindtap="skipPhoneBind">
+  <!-- 头像昵称授权底部弹窗 -->
+  <view class="profile-sheet-mask {{showProfileSheet ? 'profile-sheet-mask-show' : ''}}" bindtap="onProfileMaskTap">
+    <view class="profile-sheet {{showProfileSheet ? 'profile-sheet-show' : ''}}" catchtap="">
+      <view class="profile-sheet-bar"></view>
+      <text class="profile-sheet-title">完善个人信息</text>
+      <text class="profile-sheet-desc">授权微信头像和昵称，方便识别您的身份</text>
+      <view class="profile-info-row">
+        <image class="profile-avatar" src="{{wxAvatarUrl || '/images/mine/default_avatar.png'}}" mode="aspectFill" />
+        <text class="profile-nickname">{{wxNickname || '微信用户'}}</text>
+      </view>
+      <button class="profile-confirm-btn" open-type="chooseAvatar" bindchooseavatar="onConfirmAvatar">确认使用该头像和昵称</button>
+    </view>
+  </view>
+
+  <!-- 手机号授权底部弹窗（不可跳过） -->
+  <view class="phone-sheet-mask" wx:if="{{showPhoneModal}}">
     <view class="phone-sheet" catchtap="">
       <view class="phone-sheet-bar"></view>
-      <text class="phone-sheet-title">授权手机号</text>
-      <text class="phone-sheet-desc">为保障您的权益，上传事故视频需要绑定手机号，我们承诺不会泄露您的信息</text>
+      <text class="phone-sheet-title">绑定手机号</text>
+      <text class="phone-sheet-desc">为保障您的权益，需要绑定手机号才能使用全部功能，我们承诺不会泄露您的信息</text>
       <button
         class="phone-sheet-btn"
         open-type="getPhoneNumber"
         bindgetphonenumber="onGetPhoneNumber"
       >一键授权手机号</button>
-      <view class="phone-sheet-skip" bindtap="skipPhoneBind">暂不授权</view>
     </view>
   </view>
 

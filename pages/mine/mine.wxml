@@ -117,31 +117,4 @@
       <view class="modal-close" bindtap="closeWelfareModal">关闭</view>
     </view>
   </view>
-
-  <!-- 头像昵称弹窗 -->
-  <view class="sheet-mask {{showProfileModal ? 'sheet-mask-show' : ''}}" bindtap="skipProfile">
-    <view class="sheet-container {{showProfileModal ? 'sheet-show' : ''}}" catchtap="">
-      <view class="sheet-header">
-        <text class="sheet-title">设置头像和昵称</text>
-        <view class="sheet-close" bindtap="skipProfile">跳过</view>
-      </view>
-      <view class="sheet-body">
-        <view class="sheet-row">
-          <text class="sheet-label">头像</text>
-          <button class="sheet-avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-            <image wx:if="{{tempAvatarUrl}}" class="sheet-avatar-img" src="{{tempAvatarUrl}}" mode="aspectFill" />
-            <view wx:else class="sheet-avatar-img sheet-avatar-empty">
-              <text class="sheet-avatar-placeholder">+</text>
-            </view>
-            <text class="sheet-arrow">></text>
-          </button>
-        </view>
-        <view class="sheet-row">
-          <text class="sheet-label">昵称</text>
-          <input class="sheet-nickname-input" type="nickname" placeholder="点击获取微信昵称" bindchange="onTempNicknameChange" value="{{tempNickname}}" />
-        </view>
-      </view>
-      <view class="sheet-confirm-btn" bindtap="confirmProfile">确认</view>
-    </view>
-  </view>
 </view>

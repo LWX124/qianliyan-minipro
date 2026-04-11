@@ -196,7 +196,8 @@ App({
   logout() {
     wx.removeStorageSync('thirdSessionKey')
     wx.removeStorageSync('userInfo')
-    wx.removeStorageSync('profileSkipped')
+    wx.removeStorageSync('profileDone')
+    wx.removeStorageSync('phoneBound')
     this.globalData.isLogin = false
     this.globalData.thirdSessionKey = ''
     this.globalData.userInfo = { userId: 0, name: '', headImg: '' }
