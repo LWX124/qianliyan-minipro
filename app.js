@@ -17,8 +17,6 @@ App({
 
   onLaunch() {
     this.restoreLoginState()
-    // 默认跳转到【我的】Tab
-    wx.switchTab({ url: '/pages/mine/mine' })
   },
 
   // 尝试从本地缓存恢复登录状态
