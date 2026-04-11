@@ -1,112 +1,126 @@
 <view class="page">
   <!-- 自定义登录 loading -->
   <loading-overlay visible="{{showLoginLoading}}" text="{{loginLoadingText}}" />
-  <!-- 游客状态 -->
-  <view wx:if="{{!isLogin}}" class="user-header guest-mode">
-    <view class="user-info">
-      <view class="avatar avatar-placeholder">
-        <text class="avatar-text">👤</text>
-      </view>
-      <view class="user-detail">
-        <text class="nickname">游客</text>
-        <text class="guest-hint">登录后查看更多功能</text>
-      </view>
-    </view>
-    <button class="login-btn" bindtap="handleLogin">立即登录</button>
-  </view>
 
-  <!-- 登录状态 -->
-  <view wx:else class="user-header">
-    <view class="user-info">
-      <image wx:if="{{userInfo.headImg}}" class="avatar" src="{{userInfo.headImg}}" mode="aspectFill" />
-      <view wx:else class="avatar avatar-placeholder">
-        <text class="avatar-text">👤</text>
+  <!-- 顶部黄色区域（用户信息） -->
+  <view class="top-section">
+
+    <!-- 游客状态 -->
+    <view wx:if="{{!isLogin}}" class="user-header guest-mode">
+      <view class="user-info">
+        <view class="avatar avatar-circle avatar-placeholder">
+          <text class="avatar-text">👤</text>
+        </view>
+        <view class="user-detail">
+          <text class="nickname">游客</text>
+          <text class="guest-hint">登录后查看更多功能</text>
+        </view>
       </view>
-      <view class="user-detail">
-        <text class="nickname">{{userInfo.name || '微信用户'}}</text>
+      <button class="login-btn" bindtap="handleLogin">立即登录</button>
+    </view>
+
+    <!-- 登录状态 -->
+    <view wx:else class="user-header">
+      <view class="user-info">
+        <image wx:if="{{userInfo.headImg}}" class="avatar avatar-circle" src="{{userInfo.headImg}}" mode="aspectFill" />
+        <view wx:else class="avatar avatar-circle avatar-placeholder">
+          <text class="avatar-text">👤</text>
+        </view>
+        <view class="user-detail">
+          <text class="nickname">{{userInfo.name || '微信用户'}}</text>
+          <view class="user-id-row">
+            <text class="user-id-text">ID：{{userInfo.userId || ''}}</text>
+            <view class="copy-tag" bindtap="copyId">复制</view>
+          </view>
+        </view>
       </view>
       <view class="logout-btn" bindtap="handleLogout">退出登录</view>
     </view>
 
-    <!-- 统计数据 -->
-    <view class="stats-row">
+  </view>
+
+  <!-- 白色内容卡片 -->
+  <view class="content-card">
+
+    <!-- 统计数据（仅登录后显示） -->
+    <view wx:if="{{isLogin}}" class="stats-row">
       <view class="stat-item">
         <text class="stat-num">{{statistics.totalReward}}</text>
         <text class="stat-label">合计奖励</text>
       </view>
+      <view class="stat-divider"></view>
       <view class="stat-item">
-        <text class="stat-num">{{statistics.caseReward}}</text>
+        <text class="stat-num">{{statistics.caseReward || 0}}</text>
         <text class="stat-label">报案奖励</text>
       </view>
+      <view class="stat-divider"></view>
       <view class="stat-item">
-        <text class="stat-num">{{statistics.taskReward}}</text>
+        <text class="stat-num">{{statistics.taskReward || 0}}</text>
         <text class="stat-label">任务奖励</text>
       </view>
     </view>
-  </view>
 
-  <!-- 广告 banner 占位 -->
-  <view class="ad-banner">
-    <view class="ad-placeholder">
-      <text class="ad-text">拍照 5元-20元</text>
+    <!-- 广告 Banner（跑车必备神器） -->
+    <view class="ad-banner-wrap">
+      <image class="ad-banner-img" src="/images/mine/group_banner_ad.png" mode="widthFix" />
     </view>
-  </view>
 
-  <!-- 功能网格 -->
-  <view class="func-grid card">
-    <view class="func-item" bindtap="goUploadHistory">
-      <text class="func-icon">📋</text>
-      <text class="func-name">上传记录</text>
+    <!-- 功能网格 -->
+    <view class="func-grid">
+      <!-- 上传记录 -->
+      <view class="func-item" bindtap="goUploadHistory">
+        <image class="func-icon-img" src="/images/mine/icon_upload_record.png" mode="aspectFit" />
+        <text class="func-name">上传记录</text>
+      </view>
+      <!-- 使用教程 -->
+      <view class="func-item" bindtap="onComingSoon">
+        <image class="func-icon-img" src="/images/mine/icon_tutorial.png" mode="aspectFit" />
+        <text class="func-name">使用教程</text>
+      </view>
+      <!-- 公告 -->
+      <view class="func-item" bindtap="onComingSoon">
+        <image class="func-icon-img" src="/images/mine/icon_notice.png" mode="aspectFit" />
+        <text class="func-name">公告</text>
+      </view>
+      <!-- 在线客服 -->
+      <view class="func-item">
+        <button class="contact-btn" open-type="contact">
+          <image class="func-icon-img" src="/images/mine/icon_service.png" mode="aspectFit" />
+          <text class="func-name">在线客服</text>
+        </button>
+      </view>
+      <!-- 邀请好友 -->
+      <view class="func-item" bindtap="onComingSoon">
+        <image class="func-icon-img" src="/images/mine/icon_invite.png" mode="aspectFit" />
+        <text class="func-name">邀请好友</text>
+      </view>
+      <!-- 我的积分 -->
+      <view class="func-item" bindtap="onComingSoon">
+        <image class="func-icon-img" src="/images/mine/icon_points.png" mode="aspectFit" />
+        <text class="func-name">我的积分</text>
+      </view>
     </view>
-    <view class="func-item" bindtap="goRewardRecords">
-      <text class="func-icon">🏆</text>
-      <text class="func-name">奖励记录</text>
-    </view>
-    <view class="func-item" bindtap="onComingSoon">
-      <text class="func-icon">📖</text>
-      <text class="func-name">使用教程</text>
-    </view>
-    <view class="func-item" bindtap="onComingSoon">
-      <text class="func-icon">📢</text>
-      <text class="func-name">公告</text>
-    </view>
-    <view class="func-item">
-      <button class="contact-btn" open-type="contact">
-        <text class="func-icon">💬</text>
-        <text class="func-name">在线客服</text>
+
+    <!-- 底部两个按钮 -->
+    <view class="bottom-btns">
+      <button class="bottom-btn share-btn" open-type="share">
+        <image class="bottom-btn-img" src="/images/mine/rect_share.png" mode="aspectFit" />
+        <text class="bottom-btn-text">分享好友</text>
       </button>
+      <view class="bottom-btn welfare-btn" bindtap="onWelfare">
+        <image class="bottom-btn-img" src="/images/mine/rect_welfare.png" mode="aspectFit" />
+        <text class="bottom-btn-text">加福利官</text>
+      </view>
     </view>
-    <view class="func-item" bindtap="onComingSoon">
-      <text class="func-icon">👥</text>
-      <text class="func-name">邀请好友</text>
-    </view>
-    <view class="func-item" bindtap="onComingSoon">
-      <text class="func-icon">🏅</text>
-      <text class="func-name">我的积分</text>
-    </view>
-  </view>
 
-  <!-- 底部按钮 -->
-  <view class="bottom-btns">
-    <button class="bottom-btn share-btn" open-type="share">
-      <text>分享好友</text>
-      <text class="btn-icon">↗</text>
-    </button>
-    <view class="bottom-btn welfare-btn" bindtap="onWelfare">
-      <text>加福利官</text>
-      <text class="btn-icon">🎁</text>
-    </view>
   </view>
 
   <!-- 福利官弹窗 -->
   <view class="modal-mask" wx:if="{{showWelfareModal}}" bindtap="closeWelfareModal">
     <view class="modal-content" catchtap="">
       <text class="modal-title">添加福利官微信</text>
-      <view class="qrcode-placeholder">
-        <text class="qrcode-text">微信二维码</text>
-        <text class="qrcode-sub">（即将上线）</text>
-      </view>
-      <text class="modal-hint">长按识别二维码添加福利官</text>
+      <image class="qrcode-img" src="/images/kefu.jpg" mode="widthFix" show-menu-by-longpress="{{true}}" />
+      <text class="modal-hint">长按二维码识别添加福利官</text>
       <view class="modal-close" bindtap="closeWelfareModal">关闭</view>
     </view>
   </view>

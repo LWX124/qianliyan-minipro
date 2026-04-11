@@ -1,57 +1,59 @@
 <view class="page">
   <!-- 自定义登录 loading -->
   <loading-overlay visible="{{showLoginLoading}}" text="{{loginLoadingText}}" />
-  <!-- 顶部 banner -->
-  <view class="banner">
-    <image class="banner-img" src="/images/banner.jpg" mode="aspectFill" />
+
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="custom-nav-content">
+      <text class="custom-nav-title">事故随手拍</text>
+    </view>
   </view>
 
-  <!-- 主内容卡片 -->
+  <!-- 顶部 Banner（黄色背景 + 文字 + 女生插画），图片已包含文字 -->
+  <view class="banner-section" style="padding-top: {{navBarHeight}}px;">
+    <image class="banner-bg" src="/images/apply/group_accident.png" mode="aspectFill" />
+  </view>
+
+  <!-- 白色主卡片（圆角上叠 Banner） -->
   <view class="main-card">
-    <!-- 事故车辆插画 -->
-    <view class="accident-illustration">
-      <image class="illustration-img" src="/images/accident.jpg" mode="aspectFit" />
+
+    <!-- 必备神器说明栏 -->
+    <view class="section-header">
+      <view class="section-header-left">
+        <text class="section-header-title">必备神器</text>
+        <text class="section-header-desc">推荐使用录制事故视频</text>
+      </view>
+      <image class="section-header-car" src="/images/apply/car_crash.png" mode="aspectFit" />
     </view>
 
-    <!-- 推荐标签 + 录制视频卡片 -->
+    <!-- 录制视频卡片（推荐） -->
     <view class="action-card video-card" bindtap="goRecordVideo">
-      <view class="recommend-tag">
-        <text class="tag-text">推荐</text>
-      </view>
-      <view class="action-icon">
-        <view class="icon-circle video-icon-bg">
-          <text>🎬</text>
+      <image class="action-card-bg" src="/images/apply/group_card_video.png" mode="aspectFill" />
+      <view class="action-card-content">
+        <view class="action-card-left">
+          <image class="recommend-badge" src="/images/apply/badge_recommend.png" mode="aspectFit" />
+          <text class="action-card-title">开始录制事故视频</text>
+          <text class="action-card-desc">每次都有5元—30元现金奖励</text>
         </view>
       </view>
-      <text class="action-text">开始录制事故视频</text>
     </view>
 
     <!-- 拍照上传卡片 -->
     <view class="action-card photo-card" bindtap="goTakePhoto">
-      <view class="action-icon">
-        <view class="icon-circle photo-icon-bg">
-          <text>🖼</text>
+      <image class="action-card-bg" src="/images/apply/group_card_photo.png" mode="aspectFill" />
+      <view class="action-card-content">
+        <view class="action-card-left">
+          <text class="action-card-title">拍照上传事故图片</text>
+          <text class="action-card-desc">随手拍张照片上传事故现场</text>
         </view>
       </view>
-      <text class="action-text">拍照上传事故照片</text>
     </view>
 
-    <!-- 温馨提示 -->
-    <view class="tips">
-      <text class="tips-line tip-warning">温馨提示：不推荐拍照，通过率低</text>
+    <!-- 绑定认证按钮 -->
+    <view class="bind-btn" bindtap="onComingSoon">
+      <text class="bind-btn-text">绑定认证</text>
     </view>
-  </view>
 
-  <!-- 底部按钮区 -->
-  <view class="bottom-btns">
-    <button class="bottom-btn share-btn" open-type="share">
-      <text>分享好友</text>
-      <text class="btn-icon">↗</text>
-    </button>
-    <view class="bottom-btn welfare-btn" bindtap="onWelfare">
-      <text>加福利官</text>
-      <text class="btn-icon">🎁</text>
-    </view>
   </view>
 
   <!-- 手机号授权底部弹窗 -->
@@ -73,11 +75,8 @@
   <view class="modal-mask" wx:if="{{showWelfareModal}}" bindtap="closeWelfareModal">
     <view class="modal-content" catchtap="">
       <text class="modal-title">添加福利官微信</text>
-      <view class="qrcode-placeholder">
-        <text class="qrcode-text">微信二维码</text>
-        <text class="qrcode-sub">（即将上线）</text>
-      </view>
-      <text class="modal-hint">长按识别二维码添加福利官</text>
+      <image class="qrcode-img" src="/images/kefu.jpg" mode="widthFix" show-menu-by-longpress="{{true}}" />
+      <text class="modal-hint">长按二维码识别添加福利官</text>
       <view class="modal-close" bindtap="closeWelfareModal">关闭</view>
     </view>
   </view>

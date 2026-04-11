@@ -4,7 +4,16 @@ const app = getApp()
 Page({
   data: {
     showWelfareModal: false,
-    showPhoneModal: false   // 手机号授权弹窗
+    showPhoneModal: false,   // 手机号授权弹窗
+    statusBarHeight: 20,
+    navBarHeight: 64
+  },
+
+  onLoad() {
+    const sysInfo = wx.getSystemInfoSync()
+    const statusBarHeight = sysInfo.statusBarHeight || 20
+    const navBarHeight = statusBarHeight + 44
+    this.setData({ statusBarHeight, navBarHeight })
   },
 
   onShow() {

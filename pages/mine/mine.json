@@ -1,5 +1,7 @@
 {
   "navigationBarTitleText": "我的",
+  "navigationBarBackgroundColor": "#fce76e",
+  "navigationBarTextStyle": "black",
   "enablePullDownRefresh": false,
   "usingComponents": {
     "loading-overlay": "/components/loading/loading"

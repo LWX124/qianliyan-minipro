@@ -1,70 +1,33 @@
+/* ===== 我的页面 ===== */
 .page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #e8d5f5 0%, #f5f5f5 25%);
+  background: #f5f5f5;
 }
 
-/* 用户信息头部 */
-.user-header {
-  padding: 40rpx 30rpx 30rpx;
+/* ---- 顶部黄色区域 ---- */
+.top-section {
+  background: linear-gradient(180deg, #fce76e 0%, #fde984 100%);
+  padding: 60rpx 36rpx 80rpx;
   position: relative;
 }
 
-/* 游客模式 */
-.guest-mode {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 0 0 24rpx 24rpx;
-}
-
-.guest-hint {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.8);
-  margin-top: 8rpx;
-  display: block;
-}
-
-.guest-mode .nickname {
-  color: #fff;
-}
-
-.login-btn {
-  margin-top: 32rpx;
-  background: #fff;
-  color: #667eea;
-  border-radius: 48rpx;
-  padding: 24rpx 64rpx;
-  font-size: 28rpx;
-  font-weight: 500;
-  border: none;
-  line-height: 1;
-}
-
-.login-btn::after {
-  border: none;
-}
-
-/* 登出按钮 */
-.logout-btn {
-  position: absolute;
-  top: 40rpx;
-  right: 30rpx;
-  font-size: 24rpx;
-  color: #999;
-  padding: 8rpx 16rpx;
-  border: 1rpx solid #ddd;
-  border-radius: 32rpx;
+/* 用户信息行 */
+.user-header {
+  position: relative;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  margin-bottom: 40rpx;
+  gap: 24rpx;
 }
 
-.avatar {
+/* 圆形头像 */
+.avatar-circle {
   width: 120rpx;
   height: 120rpx;
-  border-radius: 20rpx;
-  margin-right: 24rpx;
+  border-radius: 60rpx;
+  flex-shrink: 0;
   background: #f0f0f0;
 }
 
@@ -78,36 +41,283 @@
   font-size: 60rpx;
 }
 
-/* 头像选择按钮 */
-.avatar-btn {
-  width: 120rpx;
-  height: 120rpx;
-  padding: 0;
-  margin: 0;
-  margin-right: 24rpx;
-  background: transparent;
+.user-detail {
+  flex: 1;
+}
+
+.nickname {
+  display: block;
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10rpx;
+}
+
+.user-id-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.user-id-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.copy-tag {
+  font-size: 22rpx;
+  color: #888;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 4rpx 18rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.12);
+}
+
+/* 退出登录按钮 */
+.logout-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 24rpx;
+  color: #888;
+  padding: 8rpx 18rpx;
+  border: 1rpx solid rgba(0, 0, 0, 0.15);
+  border-radius: 30rpx;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 游客模式 */
+.guest-mode .nickname {
+  color: #1a1a1a;
+}
+
+.guest-hint {
+  font-size: 24rpx;
+  color: #888;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.login-btn {
+  margin-top: 32rpx;
+  background: #fff;
+  color: #f5a623;
+  border-radius: 48rpx;
+  padding: 22rpx 64rpx;
+  font-size: 28rpx;
+  font-weight: 600;
   border: none;
-  line-height: normal;
+  line-height: 1;
+}
+
+.login-btn::after {
+  border: none;
+}
+
+/* ---- 白色内容卡片 ---- */
+.content-card {
+  background: #fff;
+  border-radius: 40rpx 40rpx 0 0;
+  margin-top: -40rpx;
+  padding: 40rpx 30rpx 60rpx;
+  min-height: 70vh;
+}
+
+/* ---- 统计数据 ---- */
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0 36rpx;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-num {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1a5fdc;
+  line-height: 1.1;
+}
+
+.stat-label {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+
+.stat-divider {
+  width: 2rpx;
+  height: 48rpx;
+  background: #eee;
+  flex-shrink: 0;
+}
+
+/* ---- 广告 banner ---- */
+.ad-banner-wrap {
+  width: 100%;
+  margin-bottom: 36rpx;
   border-radius: 20rpx;
   overflow: hidden;
 }
 
-.avatar-btn::after {
+.ad-banner-img {
+  width: 100%;
+  display: block;
+}
+
+/* ---- 功能网格 ---- */
+.func-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8rpx 0 16rpx;
+}
+
+.func-item {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 0;
+}
+
+.func-icon-img {
+  width: 88rpx;
+  height: 88rpx;
+  margin-bottom: 12rpx;
+}
+
+.func-name {
+  font-size: 26rpx;
+  color: #333;
+  text-align: center;
+}
+
+/* 客服按钮样式重置 */
+.contact-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: normal !important;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  width: 100% !important;
+  min-height: 0 !important;
+  height: auto !important;
+  border-radius: 0 !important;
+}
+
+.contact-btn::after {
   border: none;
 }
 
-/* 昵称输入框 */
-.nickname-input {
+/* ---- 底部两个按钮 ---- */
+.bottom-btns {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 20rpx;
+}
+
+.bottom-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16rpx;
+  padding: 28rpx 28rpx;
+  border-radius: 20rpx;
+  border: none;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.bottom-btn::after {
+  border: none;
+}
+
+.share-btn {
+  background: #dff0fc;
+}
+
+.welfare-btn {
+  background: #fdf0e0;
+}
+
+.bottom-btn-img {
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
+}
+
+.bottom-btn-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ---- 福利官弹窗 ---- */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  width: 560rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 48rpx 40rpx;
+  text-align: center;
+}
+
+.modal-title {
+  display: block;
   font-size: 34rpx;
   font-weight: 600;
   color: #333;
-  margin-bottom: 8rpx;
-  padding: 0;
-  height: 48rpx;
-  border-bottom: 1rpx solid #ddd;
+  margin-bottom: 30rpx;
 }
 
-/* 头像昵称底部弹窗 */
+/* 二维码图片 */
+.qrcode-img {
+  width: 400rpx;
+  display: block;
+  margin: 0 auto 24rpx;
+  border-radius: 16rpx;
+}
+
+.modal-hint {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 30rpx;
+}
+
+.modal-close {
+  display: inline-block;
+  padding: 16rpx 80rpx;
+  background: linear-gradient(135deg, #fdd835, #f5a623);
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+}
+
+/* ---- 头像昵称底部弹窗 ---- */
 .sheet-mask {
   position: fixed;
   top: 0;
@@ -233,236 +443,11 @@
 
 .sheet-confirm-btn {
   margin: 32rpx 0;
-  background: #ff4d4f;
+  background: linear-gradient(135deg, #fdd835, #f5a623);
   color: #fff;
   text-align: center;
   padding: 24rpx 0;
   border-radius: 48rpx;
   font-size: 30rpx;
   font-weight: 500;
-}
-
-.user-detail {
-  flex: 1;
-}
-
-.nickname {
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #333;
-  display: block;
-  margin-bottom: 8rpx;
-}
-
-.user-id {
-  display: flex;
-  align-items: center;
-  font-size: 26rpx;
-  color: #999;
-  gap: 12rpx;
-}
-
-.copy-btn {
-  font-size: 22rpx;
-  color: #999;
-  background: #f0f0f0;
-  padding: 4rpx 16rpx;
-  border-radius: 20rpx;
-}
-
-/* 统计数据 */
-.stats-row {
-  display: flex;
-  text-align: center;
-}
-
-.stat-item {
-  flex: 1;
-}
-
-.stat-num {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 600;
-  color: #333;
-}
-
-.stat-label {
-  display: block;
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 4rpx;
-}
-
-/* 广告 banner */
-.ad-banner {
-  padding: 0 30rpx;
-  margin-bottom: 20rpx;
-}
-
-.ad-placeholder {
-  height: 160rpx;
-  background: linear-gradient(135deg, #ffd89b, #ff9a76);
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ad-text {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #fff;
-}
-
-/* 功能网格 */
-.func-grid {
-  margin: 0 30rpx 20rpx;
-  display: flex;
-  flex-wrap: wrap;
-  padding: 20rpx 0;
-}
-
-.func-item {
-  width: 25%;
-  text-align: center;
-  padding: 24rpx 0;
-  overflow: hidden;
-}
-
-.func-icon {
-  display: block;
-  font-size: 48rpx;
-  margin-bottom: 8rpx;
-}
-
-.func-name {
-  display: block;
-  font-size: 24rpx;
-  color: #666;
-}
-
-/* 客服按钮样式重置 */
-.contact-btn {
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  line-height: normal !important;
-  font-size: inherit;
-  display: flex !important;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100% !important;
-  box-sizing: border-box;
-  min-height: 0 !important;
-  height: auto !important;
-  border-radius: 0 !important;
-  overflow: hidden;
-}
-
-.contact-btn::after {
-  border: none;
-}
-
-/* 底部按钮 */
-.bottom-btns {
-  display: flex;
-  padding: 20rpx 30rpx 40rpx;
-  gap: 20rpx;
-}
-
-.bottom-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 32rpx 36rpx;
-  font-size: 30rpx;
-  color: #333;
-  border: none;
-  line-height: 1;
-  background: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
-}
-
-.bottom-btn::after {
-  border: none;
-}
-
-.btn-icon {
-  font-size: 36rpx;
-  color: #999;
-}
-
-/* 福利官弹窗 */
-.modal-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal-content {
-  width: 560rpx;
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 40rpx;
-  text-align: center;
-}
-
-.modal-title {
-  display: block;
-  font-size: 34rpx;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 30rpx;
-}
-
-.qrcode-placeholder {
-  width: 360rpx;
-  height: 360rpx;
-  margin: 0 auto 20rpx;
-  background: #f5f5f5;
-  border-radius: 16rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 2rpx dashed #ddd;
-}
-
-.qrcode-text {
-  font-size: 30rpx;
-  color: #999;
-}
-
-.qrcode-sub {
-  font-size: 24rpx;
-  color: #ccc;
-  margin-top: 8rpx;
-}
-
-.modal-hint {
-  display: block;
-  font-size: 24rpx;
-  color: #999;
-  margin-bottom: 30rpx;
-}
-
-.modal-close {
-  display: inline-block;
-  padding: 16rpx 80rpx;
-  background: #ff4d4f;
-  color: #fff;
-  border-radius: 40rpx;
-  font-size: 28rpx;
 }
