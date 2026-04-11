@@ -7,8 +7,7 @@ Page({
     showWelfareModal: false,
     showPhoneModal: false,       // 手机号授权弹窗
     showProfileSheet: false,     // 头像昵称授权弹窗
-    wxAvatarUrl: '',             // 微信头像
-    wxNickname: '',              // 微信昵称
+    wxAvatarUrl: '',             // 授权后的头像
     statusBarHeight: 20,
     navBarHeight: 64
   },
@@ -55,11 +54,7 @@ Page({
     if (!userInfo.headImg && !userInfo.name && !profileDone) {
       // 获取微信头像昵称用于展示
       this._setTabBarHidden(true)
-      this.setData({
-        showProfileSheet: true,
-        wxAvatarUrl: '',
-        wxNickname: '微信用户'
-      })
+      this.setData({ showProfileSheet: true })
       return  // 头像昵称确认后会自动检查手机号
     }
 
@@ -69,56 +64,42 @@ Page({
 
   // ---- 头像昵称弹窗 ----
   onProfileMaskTap() {
-    // 点击遮罩不关闭，必须点确认
+    // 点击遮罩不关闭，必须授权
   },
 
-  // 用户点击「确认使用该头像和昵称」按钮（open-type="chooseAvatar"）
-  onConfirmAvatar(e) {
+  // 微信头像授权回调 - 获取到真实头像后上传保存
+  onChooseAvatar(e) {
     const avatarUrl = e.detail.avatarUrl
     if (!avatarUrl) return
 
-    // 先获取昵称：使用 wx.getUserProfile (基础库2.27+) 或直接用输入
-    // 微信小程序 chooseAvatar 只返回头像，昵称需要通过 nickname input 获取
-    // 这里先设置头像，然后弹出昵称输入
     this.setData({ wxAvatarUrl: avatarUrl })
-    this._saveProfile(avatarUrl)
-  },
 
-  // 保存头像昵称到后端
-  _saveProfile(avatarUrl) {
     const { uploadFile } = require('../../utils/request')
     const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
 
     wx.showLoading({ title: '保存中' })
 
-    let uploadPromise = Promise.resolve(avatarUrl)
-    if (avatarUrl) {
-      uploadPromise = uploadFile(avatarUrl).then(res => res.data.url || res.data)
-    }
-
-    uploadPromise.then(headImgUrl => {
-      const profileData = { thirdSessionKey }
-      if (headImgUrl) profileData.headImg = headImgUrl
+    uploadFile(avatarUrl).then(res => {
+      const headImgUrl = res.data.url || res.data
       return request({
         url: '/api/v1/wx/user/updateProfile',
         method: 'POST',
-        data: profileData
+        data: { thirdSessionKey, headImg: headImgUrl }
       })
     }).then(res => {
       wx.hideLoading()
       if (res.errorCode === 0) {
-        const info = res.data
+        const info = res.data || {}
         app.globalData.userInfo.headImg = info.headImg || app.globalData.userInfo.headImg
         app.globalData.userInfo.name = info.wxname || app.globalData.userInfo.name
         wx.setStorageSync('userInfo', app.globalData.userInfo)
         wx.setStorageSync('profileDone', '1')
         this.setData({ showProfileSheet: false })
-        wx.showToast({ title: '设置成功', icon: 'success' })
 
-        // 头像昵称完成后，接着检查手机号
+        // 接着检查手机号
         setTimeout(() => {
           this._checkPhoneBound()
-        }, 500)
+        }, 300)
       } else {
         wx.showToast({ title: '保存失败', icon: 'none' })
       }

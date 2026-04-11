@@ -61,12 +61,11 @@
     <view class="profile-sheet {{showProfileSheet ? 'profile-sheet-show' : ''}}" catchtap="">
       <view class="profile-sheet-bar"></view>
       <text class="profile-sheet-title">完善个人信息</text>
-      <text class="profile-sheet-desc">授权微信头像和昵称，方便识别您的身份</text>
-      <view class="profile-info-row">
-        <image class="profile-avatar" src="{{wxAvatarUrl || '/images/mine/default_avatar.png'}}" mode="aspectFill" />
-        <text class="profile-nickname">{{wxNickname || '微信用户'}}</text>
+      <text class="profile-sheet-desc">需要获取您的微信头像和昵称，用于身份识别</text>
+      <view class="profile-avatar-wrap">
+        <image class="profile-avatar-img" src="{{wxAvatarUrl || '/images/mine/default_avatar.png'}}" mode="aspectFill" />
       </view>
-      <button class="profile-confirm-btn" open-type="chooseAvatar" bindchooseavatar="onConfirmAvatar">确认使用该头像和昵称</button>
+      <button class="profile-confirm-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">授权微信头像</button>
     </view>
   </view>
 
