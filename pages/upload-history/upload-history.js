@@ -34,6 +34,20 @@ Page({
       data: { thirdSessionKey, page: this.data.page, pageSize: 20 }
     }).then(res => {
       const list = (res.data && res.data.list) || []
+      // 标记转账是否过期（超过24小时）
+      const now = Date.now()
+      list.forEach(item => {
+        if (item.billStatus == 2 && item.transferTime) {
+          const transferTs = new Date(item.transferTime.replace(/-/g, '/')).getTime()
+          item.transferExpired = (now - transferTs) > 24 * 60 * 60 * 1000
+        } else if (item.billStatus == 2 && item.createTime) {
+          // 兜底：用 createTime 判断
+          const createTs = new Date(item.createTime.replace(/-/g, '/')).getTime()
+          item.transferExpired = (now - createTs) > 24 * 60 * 60 * 1000
+        } else {
+          item.transferExpired = false
+        }
+      })
       const hasMore = list.length >= 20
       if (this.data.page === 1) {
         this.setData({ records: list, loading: false, hasMore })
