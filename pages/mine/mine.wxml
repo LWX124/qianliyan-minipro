@@ -1,107 +1,100 @@
 <view class="page">
-  <!-- 自定义登录 loading -->
   <loading-overlay visible="{{showLoginLoading}}" text="{{loginLoadingText}}" />
 
-  <!-- 顶部黄色区域（用户信息） -->
+  <!-- 顶部黄色区域（含用户信息） -->
   <view class="top-section">
+    <!-- 游客 -->
+    <view wx:if="{{!isLogin}}" class="user-section">
+      <view class="avatar avatar-circle avatar-placeholder">
+        <text class="avatar-text">👤</text>
+      </view>
+      <view class="user-detail">
+        <text class="nickname">游客</text>
+        <text class="guest-hint">登录后查看更多功能</text>
+      </view>
+    </view>
+    <button wx:if="{{!isLogin}}" class="login-btn" bindtap="handleLogin">立即登录</button>
 
-    <!-- 游客状态 -->
-    <view wx:if="{{!isLogin}}" class="user-header guest-mode">
-      <view class="user-info">
-        <view class="avatar avatar-circle avatar-placeholder">
-          <text class="avatar-text">👤</text>
-        </view>
-        <view class="user-detail">
-          <text class="nickname">游客</text>
-          <text class="guest-hint">登录后查看更多功能</text>
+    <!-- 已登录 -->
+    <view wx:if="{{isLogin}}" class="user-section">
+      <image wx:if="{{userInfo.headImg}}" class="avatar avatar-circle" src="{{userInfo.headImg}}" mode="aspectFill" />
+      <view wx:else class="avatar avatar-circle avatar-placeholder">
+        <text class="avatar-text">👤</text>
+      </view>
+      <view class="user-detail">
+        <text class="nickname">{{userInfo.name || '微信用户'}}</text>
+        <view class="user-id-row">
+          <text class="user-id-text">ID：{{userInfo.userId || ''}}</text>
+          <view class="copy-tag" bindtap="copyId">复制</view>
         </view>
       </view>
-      <button class="login-btn" bindtap="handleLogin">立即登录</button>
     </view>
-
-    <!-- 登录状态 -->
-    <view wx:else class="user-header">
-      <view class="user-info">
-        <image wx:if="{{userInfo.headImg}}" class="avatar avatar-circle" src="{{userInfo.headImg}}" mode="aspectFill" />
-        <view wx:else class="avatar avatar-circle avatar-placeholder">
-          <text class="avatar-text">👤</text>
-        </view>
-        <view class="user-detail">
-          <text class="nickname">{{userInfo.name || '微信用户'}}</text>
-          <view class="user-id-row">
-            <text class="user-id-text">ID：{{userInfo.userId || ''}}</text>
-            <view class="copy-tag" bindtap="copyId">复制</view>
-          </view>
-        </view>
-      </view>
-      <view class="logout-btn" bindtap="handleLogout">退出登录</view>
-    </view>
-
   </view>
 
   <!-- 白色内容卡片 -->
   <view class="content-card">
 
-    <!-- 统计数据（仅登录后显示） -->
+    <!-- 奖励统计（仅登录后） -->
     <view wx:if="{{isLogin}}" class="stats-row">
       <view class="stat-item">
         <text class="stat-num">{{statistics.totalReward}}</text>
         <text class="stat-label">合计奖励</text>
       </view>
-      <view class="stat-divider"></view>
       <view class="stat-item">
         <text class="stat-num">{{statistics.caseReward || 0}}</text>
         <text class="stat-label">报案奖励</text>
       </view>
-      <view class="stat-divider"></view>
       <view class="stat-item">
         <text class="stat-num">{{statistics.taskReward || 0}}</text>
         <text class="stat-label">任务奖励</text>
       </view>
     </view>
 
-    <!-- 广告 Banner（跑车必备神器） -->
+    <!-- 跑车必备神器 Banner -->
     <view class="ad-banner-wrap">
-      <image class="ad-banner-img" src="/images/mine/group_banner_ad.png" mode="widthFix" />
+      <view class="ad-banner-swirl">
+        <image class="ad-banner-swirl-img" src="/images/mine/top_decor.png" mode="widthFix" />
+      </view>
+      <view class="ad-banner-overlay">
+        <text class="ad-banner-title">跑车必备神器</text>
+        <view class="ad-banner-tag">
+          <text class="ad-banner-tag-text">拍照5元—30元</text>
+        </view>
+        <image class="ad-banner-girl" src="/images/mine/camera_girl.png" mode="aspectFit" />
+      </view>
     </view>
 
     <!-- 功能网格 -->
     <view class="func-grid">
-      <!-- 上传记录 -->
       <view class="func-item" bindtap="goUploadHistory">
         <image class="func-icon-img" src="/images/mine/icon_upload_record.png" mode="aspectFit" />
         <text class="func-name">上传记录</text>
       </view>
-      <!-- 使用教程 -->
       <view class="func-item" bindtap="onComingSoon">
         <image class="func-icon-img" src="/images/mine/icon_tutorial.png" mode="aspectFit" />
         <text class="func-name">使用教程</text>
       </view>
-      <!-- 公告 -->
       <view class="func-item" bindtap="onComingSoon">
         <image class="func-icon-img" src="/images/mine/icon_notice.png" mode="aspectFit" />
         <text class="func-name">公告</text>
       </view>
-      <!-- 在线客服 -->
       <view class="func-item">
         <button class="contact-btn" open-type="contact">
           <image class="func-icon-img" src="/images/mine/icon_service.png" mode="aspectFit" />
           <text class="func-name">在线客服</text>
         </button>
       </view>
-      <!-- 邀请好友 -->
       <view class="func-item" bindtap="onComingSoon">
         <image class="func-icon-img" src="/images/mine/icon_invite.png" mode="aspectFit" />
         <text class="func-name">邀请好友</text>
       </view>
-      <!-- 我的积分 -->
       <view class="func-item" bindtap="onComingSoon">
         <image class="func-icon-img" src="/images/mine/icon_points.png" mode="aspectFit" />
         <text class="func-name">我的积分</text>
       </view>
     </view>
 
-    <!-- 底部两个按钮 -->
+    <!-- 底部按钮 -->
     <view class="bottom-btns">
       <button class="bottom-btn share-btn" open-type="share">
         <image class="bottom-btn-img" src="/images/mine/rect_share.png" mode="aspectFit" />
@@ -125,7 +118,7 @@
     </view>
   </view>
 
-  <!-- 微信头像昵称底部弹窗 -->
+  <!-- 头像昵称弹窗 -->
   <view class="sheet-mask {{showProfileModal ? 'sheet-mask-show' : ''}}" bindtap="skipProfile">
     <view class="sheet-container {{showProfileModal ? 'sheet-show' : ''}}" catchtap="">
       <view class="sheet-header">

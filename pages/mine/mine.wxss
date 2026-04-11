@@ -1,34 +1,48 @@
 /* ===== 我的页面 ===== */
+/* 参考 LanhuProject 小程序版参考代码，精确还原布局 */
+
 .page {
+  background-color: #ffffff;
+  position: relative;
+  width: 750rpx;
   min-height: 100vh;
-  background: #f5f5f5;
+  overflow: hidden;
 }
 
-/* ---- 顶部黄色区域 ---- */
+/* ---- 顶部黄色渐变背景区域（含用户信息） ---- */
+/* group_1: 654rpx 黄色渐变, 包含状态栏+导航栏+用户区域上半部分 */
 .top-section {
-  background: linear-gradient(180deg, #fce76e 0%, #fde984 100%);
-  padding: 60rpx 36rpx 80rpx;
-  position: relative;
+  background-image: linear-gradient(
+    180deg,
+    rgba(251, 248, 200, 1) 0%,
+    rgba(251, 248, 200, 1) 35%,
+    rgba(254, 252, 233, 1) 89%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  width: 750rpx;
+  padding: 40rpx 40rpx 120rpx;
+  box-sizing: border-box;
 }
 
-/* 用户信息行 */
-.user-header {
-  position: relative;
-}
-
-.user-info {
+/* ---- 用户信息区域 ---- */
+/* 横向：头像左 + 名字ID右 */
+.user-section {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 24rpx;
+  padding-top: 20rpx;
 }
 
-/* 圆形头像 */
+/* 头像 */
 .avatar-circle {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 60rpx;
+  width: 148rpx;
+  height: 148rpx;
+  border-radius: 50%;
   flex-shrink: 0;
   background: #f0f0f0;
+  border: 6rpx solid #fff;
+  box-sizing: border-box;
 }
 
 .avatar-placeholder {
@@ -41,56 +55,43 @@
   font-size: 60rpx;
 }
 
+/* 用户名 */
 .user-detail {
   flex: 1;
 }
 
 .nickname {
   display: block;
-  font-size: 38rpx;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 10rpx;
+  font-size: 40rpx;
+  font-weight: 500;
+  color: #010005;
+  line-height: 40rpx;
 }
 
+/* ID + 复制 */
 .user-id-row {
   display: flex;
   align-items: center;
   gap: 12rpx;
+  margin-top: 16rpx;
 }
 
 .user-id-text {
-  font-size: 26rpx;
-  color: #666;
+  font-size: 28rpx;
+  color: #888;
+  line-height: 28rpx;
 }
 
 .copy-tag {
-  font-size: 22rpx;
-  color: #888;
-  background: rgba(0, 0, 0, 0.08);
-  padding: 4rpx 18rpx;
-  border-radius: 24rpx;
-  border: 1rpx solid rgba(0, 0, 0, 0.12);
-}
-
-/* 退出登录按钮 */
-.logout-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
   font-size: 24rpx;
-  color: #888;
-  padding: 8rpx 18rpx;
-  border: 1rpx solid rgba(0, 0, 0, 0.15);
-  border-radius: 30rpx;
-  background: rgba(255, 255, 255, 0.5);
+  color: #666;
+  padding: 2rpx 16rpx;
+  border-radius: 24rpx;
+  border: 1rpx solid #c8c8c8;
+  line-height: 24rpx;
 }
 
 /* 游客模式 */
-.guest-mode .nickname {
-  color: #1a1a1a;
-}
-
 .guest-hint {
   font-size: 24rpx;
   color: #888;
@@ -100,8 +101,8 @@
 
 .login-btn {
   margin-top: 32rpx;
-  background: #fff;
-  color: #f5a623;
+  background: linear-gradient(135deg, #fdd835, #f5a623);
+  color: #fff;
   border-radius: 48rpx;
   padding: 22rpx 64rpx;
   font-size: 28rpx;
@@ -115,86 +116,167 @@
 }
 
 /* ---- 白色内容卡片 ---- */
+/* group_2: 白色背景, 上方圆角, 向上覆盖黄色区域 */
 .content-card {
   background: #fff;
-  border-radius: 40rpx 40rpx 0 0;
-  margin-top: -40rpx;
-  padding: 40rpx 30rpx 60rpx;
-  min-height: 70vh;
+  border-radius: 48rpx 48rpx 0 0;
+  width: 750rpx;
+  margin-top: -80rpx;
+  position: relative;
+  padding: 40rpx 40rpx 60rpx;
+  box-sizing: border-box;
+  min-height: 800rpx;
 }
 
-/* ---- 统计数据 ---- */
+/* ---- 奖励统计 ---- */
+/* group_3: 670×148rpx, border-radius 24rpx, margin-top 78rpx -> 改为小一些的 margin */
 .stats-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 24rpx 0 36rpx;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 24rpx;
+  height: 148rpx;
+  width: 670rpx;
+  margin: -10rpx auto 0;
+  border: none;
 }
 
 .stat-item {
   flex: 1;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .stat-num {
   display: block;
-  font-size: 48rpx;
+  font-size: 44rpx;
   font-weight: 700;
-  color: #1a5fdc;
-  line-height: 1.1;
+  color: #0c3351;
+  line-height: 44rpx;
 }
 
 .stat-label {
   display: block;
   font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
+  color: #888;
+  margin-top: 16rpx;
+  line-height: 24rpx;
 }
 
-.stat-divider {
-  width: 2rpx;
-  height: 48rpx;
-  background: #eee;
-  flex-shrink: 0;
-}
-
-/* ---- 广告 banner ---- */
+/* ---- 广告 banner（跑车必备神器） ---- */
+/* group_4: 686×160rpx, border-radius 24rpx, margin: 24rpx 0 26rpx */
 .ad-banner-wrap {
   width: 100%;
-  margin-bottom: 36rpx;
-  border-radius: 20rpx;
-  overflow: hidden;
+  height: 180rpx;
+  background: linear-gradient(90deg, #fce68b 0%, #f8d85e 100%);
+  border-radius: 24rpx;
+  margin-top: 24rpx;
+  margin-bottom: 26rpx;
+  position: relative;
+  overflow: visible;
 }
 
-.ad-banner-img {
+/* section_1: 环绕装饰，右侧+底部+顶部与banner对齐 */
+.ad-banner-swirl {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
   width: 100%;
+  overflow: visible;
+}
+
+.ad-banner-swirl-img {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* section_2: absolute, left 0, top 0, full size */
+.ad-banner-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* text_7: font-size 48rpx, font-weight 700, margin: 28rpx 0 0 40rpx */
+.ad-banner-title {
   display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #010005;
+  line-height: 44rpx;
+  margin: 38rpx 0 0 40rpx;
+}
+
+/* text-wrapper_2: bg rgba(255,255,255,0.2), border-radius 40rpx, height 44rpx, width 240rpx */
+.ad-banner-tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 1);
+  border-radius: 40rpx;
+  height: 44rpx;
+  padding: 0 24rpx;
+  margin: 24rpx 0 0 34rpx;
+  line-height: 44rpx;
+}
+
+/* text_8: color rgba(96,80,21,1), font-size 26rpx, letter-spacing 2rpx */
+.ad-banner-tag-text {
+  font-size: 26rpx;
+  color: #605015;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+}
+
+/* image_1: absolute, left 386rpx, top -24rpx, width 300rpx, height 184rpx */
+.ad-banner-girl {
+  position: absolute;
+  left: 360rpx;
+  bottom: 0;
+  width: 360rpx;
+  height: 220rpx;
 }
 
 /* ---- 功能网格 ---- */
+/* box_3: bg white, border-radius 24rpx, height 440rpx, width 670rpx */
 .func-grid {
   display: flex;
   flex-wrap: wrap;
-  padding: 8rpx 0 16rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 60rpx 0 0;
+  margin-bottom: 24rpx;
 }
 
+/* image-text_1: width 164rpx, height 140rpx, margin-bottom 40rpx */
 .func-item {
   width: 25%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24rpx 0;
+  margin-bottom: 40rpx;
 }
 
+/* box_4: width 84rpx, height 84rpx */
 .func-icon-img {
-  width: 88rpx;
-  height: 88rpx;
-  margin-bottom: 12rpx;
+  width: 84rpx;
+  height: 84rpx;
+  margin-bottom: 16rpx;
 }
 
+/* text-group_1: font-size 28rpx, color #010005 */
 .func-name {
-  font-size: 26rpx;
-  color: #333;
+  font-size: 28rpx;
+  color: #010005;
   text-align: center;
 }
 
@@ -205,6 +287,7 @@
   padding: 0 !important;
   margin: 0 !important;
   line-height: normal !important;
+  font-weight: normal !important;
   display: flex !important;
   flex-direction: column;
   align-items: center;
@@ -219,24 +302,27 @@
 }
 
 /* ---- 底部两个按钮 ---- */
+/* section_3: width 688rpx, height 128rpx, margin: 24rpx 0 0 */
 .bottom-btns {
   display: flex;
-  gap: 20rpx;
-  margin-top: 20rpx;
+  gap: 24rpx;
+  margin-top: 0;
 }
 
+/* block_2/block_3: width 332rpx, height 128rpx */
 .bottom-btn {
   flex: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  gap: 16rpx;
-  padding: 28rpx 28rpx;
+  gap: 12rpx;
+  padding: 20rpx 30rpx;
   border-radius: 20rpx;
   border: none;
   line-height: 1;
   box-sizing: border-box;
+  height: 128rpx;
 }
 
 .bottom-btn::after {
@@ -244,23 +330,41 @@
 }
 
 .share-btn {
-  background: #dff0fc;
+  background: #e8f4fd;
 }
 
 .welfare-btn {
   background: #fdf0e0;
 }
 
+/* box_6/box_7: width 88rpx, height 88rpx */
 .bottom-btn-img {
-  width: 64rpx;
-  height: 64rpx;
+  width: 88rpx;
+  height: 88rpx;
   flex-shrink: 0;
 }
 
+/* text-group_2: font-size 32rpx, color #010005 */
 .bottom-btn-text {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #333;
+  font-size: 32rpx;
+  font-weight: normal;
+  color: #010005;
+}
+
+/* 退出登录 */
+.logout-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 40rpx;
+}
+
+.logout-btn {
+  font-size: 26rpx;
+  color: #999;
+  padding: 10rpx 36rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 30rpx;
+  background: transparent;
 }
 
 /* ---- 福利官弹窗 ---- */
@@ -293,7 +397,6 @@
   margin-bottom: 30rpx;
 }
 
-/* 二维码图片 */
 .qrcode-img {
   width: 400rpx;
   display: block;
