@@ -52,7 +52,11 @@ Page({
       data: { thirdSessionKey }
     }).then(res => {
       if (res.errorCode === 0) {
-        this.setData({ 'statistics.totalReward': res.data.totalReward || 0 })
+        this.setData({
+          'statistics.totalReward': res.data.totalReward || 0,
+          'statistics.caseReward': res.data.totalReward || 0,
+          'statistics.taskReward': res.data.taskReward || 0
+        })
       }
     }).catch(err => {
       if (err.code === 530 || err.errorCode === 530) {
