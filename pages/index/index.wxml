@@ -49,9 +49,9 @@
       </view>
     </view>
 
-    <!-- 绑定认证按钮 -->
-    <view class="bind-btn" bindtap="onComingSoon">
-      <text class="bind-btn-text">绑定认证</text>
+    <!-- 领取奖励按钮 -->
+    <view class="bind-btn" bindtap="goUploadHistory">
+      <text class="bind-btn-text">领取奖励</text>
     </view>
 
   </view>

@@ -200,7 +200,7 @@
   /* 背景形状由 group_card_photo.png 控制，与视频卡片保持一致 */
 }
 
-/* ---- 绑定认证按钮 ---- */
+/* ---- 领取奖励按钮 ---- */
 .bind-btn {
   margin-top: 36rpx;
   background: linear-gradient(136deg, #ffc940 0%, #ffecab 100%);

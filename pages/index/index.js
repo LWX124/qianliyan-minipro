@@ -160,6 +160,17 @@ Page({
     wx.navigateTo({ url: '/pages/take-photo/take-photo' })
   },
 
+  goUploadHistory() {
+    if (!app.globalData.isLogin) {
+      app.login({
+        success: () => wx.navigateTo({ url: '/pages/upload-history/upload-history' }),
+        fail: (msg) => wx.showToast({ title: msg || '登录失败', icon: 'none' })
+      })
+    } else {
+      wx.navigateTo({ url: '/pages/upload-history/upload-history' })
+    }
+  },
+
   onComingSoon() {
     wx.showToast({ title: '开发中，敬请期待！', icon: 'none' })
   },
