@@ -8,6 +8,10 @@ function fixCdnUrl(url) {
   if (url.indexOf(config.cdnDomain) === 0) {
     return url.replace(config.cdnDomain, config.cdnProxy)
   }
+  // 兼容旧的七牛云测试域名
+  if (url.indexOf('http://tcb098rkh.hn-bkt.clouddn.com/') === 0) {
+    return url.replace('http://tcb098rkh.hn-bkt.clouddn.com/', config.cdnProxy)
+  }
   return url
 }
 
