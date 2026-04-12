@@ -169,3 +169,217 @@
   color: #999;
   font-size: 26rpx;
 }
+
+/* ---- 头像昵称底部弹窗 ---- */
+.profile-sheet-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  visibility: hidden;
+  transition: background 0.3s, visibility 0.3s;
+}
+
+.profile-sheet-mask-show {
+  visibility: visible;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.profile-sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx 40rpx 0;
+  padding-bottom: calc(60rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+}
+
+.profile-sheet-show {
+  transform: translateY(0);
+}
+
+.profile-sheet-bar {
+  width: 80rpx;
+  height: 8rpx;
+  background: #e0e0e0;
+  border-radius: 4rpx;
+  margin-bottom: 32rpx;
+}
+
+.profile-sheet-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 16rpx;
+}
+
+.profile-sheet-desc {
+  font-size: 26rpx;
+  color: #999;
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 32rpx;
+  padding: 0 20rpx;
+}
+
+/* 步骤引导 */
+.profile-step {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  align-self: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.profile-step-num {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fdd835, #f5a623);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 600;
+  text-align: center;
+  line-height: 40rpx;
+}
+
+.profile-step-label {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.profile-avatar-wrap {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12rpx;
+  border: 4rpx dashed #ddd;
+  position: relative;
+}
+
+.profile-avatar-wrap.avatar-selected {
+  border: 4rpx solid #52c41a;
+}
+
+.avatar-edit-icon {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 44rpx;
+  height: 44rpx;
+  background: linear-gradient(135deg, #fdd835, #f5a623);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-edit-text {
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.profile-avatar-img {
+  width: 140rpx;
+  height: 140rpx;
+  display: block;
+}
+
+.profile-avatar-btn {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 0 24rpx !important;
+  line-height: normal !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+.profile-avatar-btn::after {
+  border: none;
+}
+
+.profile-avatar-hint {
+  font-size: 24rpx;
+  color: #f5a623;
+}
+
+.profile-avatar-hint.hint-done {
+  color: #52c41a;
+}
+
+.profile-nickname-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  border-radius: 20rpx;
+  padding: 0 28rpx;
+  margin-bottom: 36rpx;
+  height: 100rpx;
+  border: 2rpx solid #eee;
+}
+
+.nickname-icon {
+  font-size: 36rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.profile-nickname-label {
+  font-size: 30rpx;
+  color: #333;
+  width: 100rpx;
+  flex-shrink: 0;
+}
+
+.profile-nickname-input {
+  flex: 1;
+  font-size: 32rpx;
+  color: #333;
+  height: 100rpx;
+}
+
+.profile-confirm-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #fdd835, #f5a623);
+  color: #fff;
+  border-radius: 50rpx;
+  font-size: 32rpx;
+  font-weight: 500;
+  text-align: center;
+  padding: 24rpx 0;
+  border: none;
+}
+
+.profile-confirm-btn.btn-disabled {
+  opacity: 0.5;
+}
+
+.profile-confirm-btn::after {
+  border: none;
+}
+
+.sheet-skip-btn {
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+  padding: 20rpx 0 16rpx;
+}

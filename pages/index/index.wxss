@@ -350,95 +350,10 @@
   border: none;
 }
 
-/* ---- 头像昵称底部弹窗 ---- */
-.profile-sheet-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: -200rpx;
-  background: rgba(0, 0, 0, 0);
-  z-index: 1000;
-  display: flex;
-  align-items: flex-end;
-  visibility: hidden;
-  transition: background 0.3s, visibility 0.3s;
-}
-
-.profile-sheet-mask-show {
-  visibility: visible;
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.profile-sheet {
-  width: 100%;
-  background: #fff;
-  border-radius: 32rpx 32rpx 0 0;
-  padding: 32rpx 40rpx 0;
-  padding-bottom: calc(200rpx + env(safe-area-inset-bottom));
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transform: translateY(100%);
-  transition: transform 0.3s ease-out;
-}
-
-.profile-sheet-show {
-  transform: translateY(0);
-}
-
-.profile-sheet-bar {
-  width: 80rpx;
-  height: 8rpx;
-  background: #e0e0e0;
-  border-radius: 4rpx;
-  margin-bottom: 32rpx;
-}
-
-.profile-sheet-title {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 16rpx;
-}
-
-.profile-sheet-desc {
-  font-size: 26rpx;
+/* ---- 弹窗跳过按钮 ---- */
+.sheet-skip-btn {
+  text-align: center;
+  font-size: 28rpx;
   color: #999;
-  text-align: center;
-  line-height: 1.6;
-  margin-bottom: 40rpx;
-  padding: 0 20rpx;
-}
-
-.profile-avatar-wrap {
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 50%;
-  overflow: hidden;
-  margin-bottom: 40rpx;
-  border: 4rpx solid #f0f0f0;
-}
-
-.profile-avatar-img {
-  width: 160rpx;
-  height: 160rpx;
-  display: block;
-}
-
-.profile-confirm-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #fdd835, #f5a623);
-  color: #fff;
-  border-radius: 50rpx;
-  font-size: 32rpx;
-  font-weight: 500;
-  text-align: center;
-  padding: 24rpx 0;
-  border: none;
-}
-
-.profile-confirm-btn::after {
-  border: none;
+  padding: 20rpx 0 16rpx;
 }

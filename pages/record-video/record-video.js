@@ -43,7 +43,9 @@ Page({
     uploadProgress: 0,
 
     // 布局
-    statusBarHeight: 0
+    statusBarHeight: 0,
+
+    showPhoneModal: false
   },
 
   onLoad() {
@@ -284,6 +286,19 @@ Page({
 
   uploadVideo() {
     if (this.data.uploading) return
+
+    // 检查手机号是否已绑定
+    const phoneBound = wx.getStorageSync('phoneBound')
+    if (!phoneBound) {
+      this._pendingUpload = true
+      this.setData({ showPhoneModal: true })
+      return
+    }
+
+    this._doUpload()
+  },
+
+  _doUpload() {
     this.setData({ uploading: true, uploadProgress: 0 })
 
     const lng = this.data.longitude
@@ -301,9 +316,8 @@ Page({
       })
     }).then(res => {
       this.setData({ uploading: false })
-      // 判断业务错误码
       if (res && res.errorCode === 5003) {
-        wx.removeStorageSync('phoneBound')  // 清除本地缓存，下次进首页重新弹授权
+        wx.removeStorageSync('phoneBound')
         wx.showModal({
           title: '需要授权手机号',
           content: '上传记录需要先授权手机号，请返回首页完成授权后再上传',
@@ -327,6 +341,59 @@ Page({
       this.setData({ uploading: false })
       wx.showToast({ title: '上传失败，请重试', icon: 'none' })
     })
+  },
+
+  // 手机号授权回调
+  onGetPhoneNumber(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      this.setData({ showPhoneModal: false })
+      // 用户拒绝，提示但不阻塞上传
+      wx.showToast({ title: '未绑定手机号将影响奖励领取', icon: 'none' })
+      if (this._pendingUpload) {
+        this._pendingUpload = false
+        setTimeout(() => this._doUpload(), 1500)
+      }
+      return
+    }
+    const code = e.detail.code
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    wx.showLoading({ title: '绑定中...' })
+    wx.request({
+      url: config.baseUrl + '/api/v1/wx/user/bindPhone',
+      method: 'POST',
+      header: { 'content-type': 'application/x-www-form-urlencoded' },
+      data: 'thirdSessionKey=' + encodeURIComponent(thirdSessionKey) + '&code=' + encodeURIComponent(code),
+      success: (res) => {
+        wx.hideLoading()
+        const data = res.data || {}
+        if (data.errorCode === 0) {
+          wx.setStorageSync('phoneBound', '1')
+          wx.showToast({ title: '手机号绑定成功', icon: 'success' })
+        } else {
+          wx.showToast({ title: data.errorMsg || '绑定失败', icon: 'none' })
+        }
+        this.setData({ showPhoneModal: false })
+        // 绑定后继续上传
+        if (this._pendingUpload) {
+          this._pendingUpload = false
+          setTimeout(() => this._doUpload(), 1000)
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({ title: '网络异常，请重试', icon: 'none' })
+      }
+    })
+  },
+
+  closePhoneModal() {
+    this.setData({ showPhoneModal: false })
+    // 用户跳过，提示但继续上传
+    if (this._pendingUpload) {
+      this._pendingUpload = false
+      wx.showToast({ title: '未绑定手机号将影响奖励领取', icon: 'none' })
+      setTimeout(() => this._doUpload(), 1500)
+    }
   },
 
   // ========== 获取位置 ==========

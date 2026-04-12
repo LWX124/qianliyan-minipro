@@ -1,6 +1,17 @@
 const config = require('../config/index')
 
 /**
+ * 修正七牛云 CDN URL（替换为 Nginx 反代地址，解决 CDN SSL 证书问题）
+ */
+function fixCdnUrl(url) {
+  if (!url || typeof url !== 'string') return url
+  if (url.indexOf(config.cdnDomain) === 0) {
+    return url.replace(config.cdnDomain, config.cdnProxy)
+  }
+  return url
+}
+
+/**
  * 封装 wx.request，自动携带 token 和 source
  */
 function request(options) {
@@ -76,4 +87,4 @@ function uploadFile(filePath, onProgress) {
   })
 }
 
-module.exports = { request, uploadFile }
+module.exports = { request, uploadFile, fixCdnUrl }

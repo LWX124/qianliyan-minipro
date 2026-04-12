@@ -7,7 +7,10 @@ const config = {
   // 微信小程序 AppID
   appId: 'wx5d88d6c7c216e1f3',
   // 订阅消息模板ID（审核结果通知，从微信后台获取后填入）
-  subscribeTemplateId: '8_0YosP9YlA9Y-H8EWBD7hz6NVC81u3eZezVAw_JxYs'
+  subscribeTemplateId: '8_0YosP9YlA9Y-H8EWBD7hz6NVC81u3eZezVAw_JxYs',
+  // 七牛云 CDN 域名替换（CDN证书问题，通过Nginx反代解决）
+  cdnDomain: 'https://cdn.meisaizhixing.cn/',
+  cdnProxy: 'https://meisaizhixing.cn/qiniu/'
 }
 
 module.exports = config

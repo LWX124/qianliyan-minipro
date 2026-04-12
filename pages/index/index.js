@@ -6,8 +6,6 @@ Page({
   data: {
     showWelfareModal: false,
     showPhoneModal: false,       // 手机号授权弹窗
-    showProfileSheet: false,     // 头像昵称授权弹窗
-    wxAvatarUrl: '',             // 授权后的头像
     statusBarHeight: 20,
     navBarHeight: 64
   },
@@ -21,92 +19,37 @@ Page({
 
   onShow() {
     this._requestLocation()
-    // 登录完成后依次检查：头像昵称 → 手机号
-    this._waitLoginThenCheck()
+    this._checkPhoneForReturningUser()
   },
 
-  // 等登录完成后再检查资料
-  _waitLoginThenCheck() {
+  // 老用户未绑手机：延迟5秒弹窗（首次游客不弹）
+  _checkPhoneForReturningUser() {
+    if (app.globalData.isNewUser) return
     if (app.globalData.isCheckingLogin) {
-      this._checkTimer = setInterval(() => {
+      this._phoneTimer = setInterval(() => {
         if (!app.globalData.isCheckingLogin) {
-          clearInterval(this._checkTimer)
-          this._checkProfileAndPhone()
+          clearInterval(this._phoneTimer)
+          this._delayCheckPhone()
         }
       }, 100)
     } else {
-      this._checkProfileAndPhone()
+      this._delayCheckPhone()
     }
+  },
+
+  _delayCheckPhone() {
+    if (!app.globalData.isLogin) return
+    const phoneBound = wx.getStorageSync('phoneBound')
+    if (phoneBound) return
+
+    this._phoneDelayTimer = setTimeout(() => {
+      this._checkPhoneBound()
+    }, 5000)
   },
 
   onHide() {
-    if (this._checkTimer) clearInterval(this._checkTimer)
-  },
-
-  // 检查头像昵称 → 手机号
-  _checkProfileAndPhone() {
-    if (!app.globalData.isLogin) return
-
-    const userInfo = app.globalData.userInfo || {}
-    const profileDone = wx.getStorageSync('profileDone')
-
-    // 1. 先检查头像昵称
-    if (!userInfo.headImg && !userInfo.name && !profileDone) {
-      // 获取微信头像昵称用于展示
-      this._setTabBarHidden(true)
-      this.setData({ showProfileSheet: true })
-      return  // 头像昵称确认后会自动检查手机号
-    }
-
-    // 2. 再检查手机号
-    this._checkPhoneBound()
-  },
-
-  // ---- 头像昵称弹窗 ----
-  onProfileMaskTap() {
-    // 点击遮罩不关闭，必须授权
-  },
-
-  // 微信头像授权回调 - 获取到真实头像后上传保存
-  onChooseAvatar(e) {
-    const avatarUrl = e.detail.avatarUrl
-    if (!avatarUrl) return
-
-    this.setData({ wxAvatarUrl: avatarUrl })
-
-    const { uploadFile } = require('../../utils/request')
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
-
-    wx.showLoading({ title: '保存中' })
-
-    uploadFile(avatarUrl).then(res => {
-      const headImgUrl = res.data.url || res.data
-      return request({
-        url: '/api/v1/wx/user/updateProfile',
-        method: 'POST',
-        data: { thirdSessionKey, headImg: headImgUrl }
-      })
-    }).then(res => {
-      wx.hideLoading()
-      if (res.errorCode === 0) {
-        const info = res.data || {}
-        app.globalData.userInfo.headImg = info.headImg || app.globalData.userInfo.headImg
-        app.globalData.userInfo.name = info.wxname || app.globalData.userInfo.name
-        wx.setStorageSync('userInfo', app.globalData.userInfo)
-        wx.setStorageSync('profileDone', '1')
-        this.setData({ showProfileSheet: false })
-
-        // 接着检查手机号
-        setTimeout(() => {
-          this._checkPhoneBound()
-        }, 300)
-      } else {
-        wx.showToast({ title: '保存失败', icon: 'none' })
-      }
-    }).catch(() => {
-      wx.hideLoading()
-      wx.showToast({ title: '保存失败，请重试', icon: 'none' })
-    })
+    if (this._phoneTimer) clearInterval(this._phoneTimer)
+    if (this._phoneDelayTimer) clearTimeout(this._phoneDelayTimer)
   },
 
   // ---- 手机号绑定 ----
@@ -115,10 +58,7 @@ Page({
     if (!thirdSessionKey) return
 
     const phoneBound = wx.getStorageSync('phoneBound')
-    if (phoneBound) {
-      this._setTabBarHidden(false)
-      return
-    }
+    if (phoneBound) return
 
     request({
       url: '/api/v1/wx/user/get',
@@ -127,21 +67,16 @@ Page({
     }).then(res => {
       if (res.errorCode === 0 && res.data && res.data.phone) {
         wx.setStorageSync('phoneBound', '1')
-        this._setTabBarHidden(false)
       } else {
-        this._setTabBarHidden(true)
         this.setData({ showPhoneModal: true })
       }
-    }).catch(() => {
-      this._setTabBarHidden(false)
-    })
+    }).catch(() => {})
   },
 
   // 微信手机号授权回调
   onGetPhoneNumber(e) {
     if (e.detail.errMsg !== 'getPhoneNumber:ok') {
-      // 用户拒绝，不关闭弹窗，提示必须绑定
-      wx.showToast({ title: '需要绑定手机号才能使用', icon: 'none' })
+      this.setData({ showPhoneModal: false })
       return
     }
     const code = e.detail.code
@@ -161,7 +96,6 @@ Page({
         } else {
           wx.showToast({ title: data.errorMsg || '绑定失败，请重试', icon: 'none' })
         }
-        this._setTabBarHidden(false)
         this.setData({ showPhoneModal: false })
       },
       fail: () => {
@@ -171,13 +105,8 @@ Page({
     })
   },
 
-  // 控制系统 tabBar 显隐
-  _setTabBarHidden(hidden) {
-    if (hidden) {
-      wx.hideTabBar({ animation: false })
-    } else {
-      wx.showTabBar({ animation: false })
-    }
+  closePhoneModal() {
+    this.setData({ showPhoneModal: false })
   },
 
   // 请求地理位置权限

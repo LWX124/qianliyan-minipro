@@ -5,7 +5,8 @@ Page({
   data: {
     photos: [],
     uploading: false,
-    uploadedCount: 0
+    uploadedCount: 0,
+    showPhoneModal: false
   },
 
   takePhoto() {
@@ -41,6 +42,21 @@ Page({
   },
 
   async uploadPhotos() {
+    const { photos } = this.data
+    if (photos.length === 0) return
+
+    // 检查手机号是否已绑定
+    const phoneBound = wx.getStorageSync('phoneBound')
+    if (!phoneBound) {
+      this._pendingUpload = true
+      this.setData({ showPhoneModal: true })
+      return
+    }
+
+    this._doUpload()
+  },
+
+  async _doUpload() {
     const { photos } = this.data
     if (photos.length === 0) return
 
@@ -84,7 +100,6 @@ Page({
 
       this.setData({ uploading: false })
 
-      // 判断业务错误码
       if (addRes && addRes.errorCode === 5003) {
         wx.removeStorageSync('phoneBound')
         wx.showModal({
@@ -110,6 +125,56 @@ Page({
     } catch (err) {
       this.setData({ uploading: false })
       wx.showToast({ title: '上传失败，请重试', icon: 'none' })
+    }
+  },
+
+  // 手机号授权回调
+  onGetPhoneNumber(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      this.setData({ showPhoneModal: false })
+      wx.showToast({ title: '未绑定手机号将影响奖励领取', icon: 'none' })
+      if (this._pendingUpload) {
+        this._pendingUpload = false
+        setTimeout(() => this._doUpload(), 1500)
+      }
+      return
+    }
+    const code = e.detail.code
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    wx.showLoading({ title: '绑定中...' })
+    wx.request({
+      url: config.baseUrl + '/api/v1/wx/user/bindPhone',
+      method: 'POST',
+      header: { 'content-type': 'application/x-www-form-urlencoded' },
+      data: 'thirdSessionKey=' + encodeURIComponent(thirdSessionKey) + '&code=' + encodeURIComponent(code),
+      success: (res) => {
+        wx.hideLoading()
+        const data = res.data || {}
+        if (data.errorCode === 0) {
+          wx.setStorageSync('phoneBound', '1')
+          wx.showToast({ title: '手机号绑定成功', icon: 'success' })
+        } else {
+          wx.showToast({ title: data.errorMsg || '绑定失败', icon: 'none' })
+        }
+        this.setData({ showPhoneModal: false })
+        if (this._pendingUpload) {
+          this._pendingUpload = false
+          setTimeout(() => this._doUpload(), 1000)
+        }
+      },
+      fail: () => {
+        wx.hideLoading()
+        wx.showToast({ title: '网络异常，请重试', icon: 'none' })
+      }
+    })
+  },
+
+  closePhoneModal() {
+    this.setData({ showPhoneModal: false })
+    if (this._pendingUpload) {
+      this._pendingUpload = false
+      wx.showToast({ title: '未绑定手机号将影响奖励领取', icon: 'none' })
+      setTimeout(() => this._doUpload(), 1500)
     }
   }
 })

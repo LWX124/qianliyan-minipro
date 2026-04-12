@@ -56,30 +56,18 @@
 
   </view>
 
-  <!-- 头像昵称授权底部弹窗 -->
-  <view class="profile-sheet-mask {{showProfileSheet ? 'profile-sheet-mask-show' : ''}}" bindtap="onProfileMaskTap">
-    <view class="profile-sheet {{showProfileSheet ? 'profile-sheet-show' : ''}}" catchtap="">
-      <view class="profile-sheet-bar"></view>
-      <text class="profile-sheet-title">完善个人信息</text>
-      <text class="profile-sheet-desc">需要获取您的微信头像和昵称，用于身份识别</text>
-      <view class="profile-avatar-wrap">
-        <image class="profile-avatar-img" src="{{wxAvatarUrl || '/images/mine/default_avatar.png'}}" mode="aspectFill" />
-      </view>
-      <button class="profile-confirm-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">授权微信头像</button>
-    </view>
-  </view>
-
-  <!-- 手机号授权底部弹窗（不可跳过） -->
-  <view class="phone-sheet-mask" wx:if="{{showPhoneModal}}">
+  <!-- 手机号授权底部弹窗 -->
+  <view class="phone-sheet-mask" wx:if="{{showPhoneModal}}" bindtap="closePhoneModal">
     <view class="phone-sheet" catchtap="">
       <view class="phone-sheet-bar"></view>
       <text class="phone-sheet-title">绑定手机号</text>
-      <text class="phone-sheet-desc">为保障您的权益，需要绑定手机号才能使用全部功能，我们承诺不会泄露您的信息</text>
+      <text class="phone-sheet-desc">绑定手机号后可正常领取奖励，我们承诺不会泄露您的信息</text>
       <button
         class="phone-sheet-btn"
         open-type="getPhoneNumber"
         bindgetphonenumber="onGetPhoneNumber"
       >一键授权手机号</button>
+      <view class="sheet-skip-btn" bindtap="closePhoneModal">暂不绑定</view>
     </view>
   </view>
 

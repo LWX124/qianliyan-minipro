@@ -105,4 +105,19 @@
       <text class="uploading-label" wx:else>上传中...</text>
     </view>
   </view>
+
+  <!-- 手机号授权底部弹窗 -->
+  <view class="phone-sheet-mask" wx:if="{{showPhoneModal}}" bindtap="closePhoneModal">
+    <view class="phone-sheet" catchtap="">
+      <view class="phone-sheet-bar"></view>
+      <text class="phone-sheet-title">绑定手机号</text>
+      <text class="phone-sheet-desc">绑定手机号后可正常领取奖励，我们承诺不会泄露您的信息</text>
+      <button
+        class="phone-sheet-btn"
+        open-type="getPhoneNumber"
+        bindgetphonenumber="onGetPhoneNumber"
+      >一键授权手机号</button>
+      <view class="sheet-skip-btn" bindtap="closePhoneModal">暂不绑定</view>
+    </view>
+  </view>
 </view>

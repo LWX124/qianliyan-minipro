@@ -6,12 +6,85 @@ Page({
     loading: false,
     page: 1,
     hasMore: true,
-    playingVideo: ''
+    playingVideo: '',
+    showProfileSheet: false,
+    wxAvatarUrl: '',
+    wxNickname: ''
   },
 
   onShow() {
+    // 如果正在完善资料（头像选择器返回），不重新加载
+    if (this.data.showProfileSheet) return
+
     this.setData({ page: 1, hasMore: true })
     this.loadRecords()
+    this._delayCheckProfile()
+  },
+
+  onHide() {
+    if (this._profileTimer) clearTimeout(this._profileTimer)
+  },
+
+  // 延迟3秒检查昵称
+  _delayCheckProfile() {
+    const app = getApp()
+    if (!app.globalData.isLogin) return
+    const userInfo = app.globalData.userInfo || {}
+    const profileDone = wx.getStorageSync('profileDone')
+    if (userInfo.name || profileDone) return
+
+    this._profileTimer = setTimeout(() => {
+      this.setData({ showProfileSheet: true })
+    }, 3000)
+  },
+
+  // 昵称输入回调
+  onNicknameChange(e) {
+    this.setData({ wxNickname: e.detail.value })
+  },
+
+  // 确认保存昵称
+  confirmProfile() {
+    const nickname = this.data.wxNickname
+
+    if (!nickname) {
+      wx.showToast({ title: '请先选择昵称', icon: 'none' })
+      return
+    }
+
+    const app = getApp()
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+
+    wx.showLoading({ title: '保存中' })
+    request({
+      url: '/api/v1/wx/user/updateProfile',
+      method: 'POST',
+      data: { thirdSessionKey, wxname: nickname }
+    }).then(res => {
+      wx.hideLoading()
+      if (res.errorCode === 0) {
+        const info = res.data || {}
+        app.globalData.userInfo = {
+          userId: info.userId || app.globalData.userInfo.userId,
+          headImg: info.headImg || app.globalData.userInfo.headImg,
+          name: info.wxname || app.globalData.userInfo.name
+        }
+        wx.setStorageSync('userInfo', app.globalData.userInfo)
+        wx.setStorageSync('profileDone', '1')
+        this.setData({ showProfileSheet: false })
+        wx.showToast({ title: '设置成功', icon: 'success' })
+      } else {
+        wx.showToast({ title: '保存失败', icon: 'none' })
+      }
+    }).catch(() => {
+      wx.hideLoading()
+      wx.showToast({ title: '保存失败，请重试', icon: 'none' })
+    })
+  },
+
+  closeProfileSheet() {
+    wx.setStorageSync('profileDone', '1')
+    this.setData({ showProfileSheet: false })
   },
 
   onPullDownRefresh() {

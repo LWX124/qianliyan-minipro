@@ -12,7 +12,8 @@ App({
     thirdSessionKey: '',      // token
     isLoggingIn: false,       // 登录中标志
     loginCallbacks: [],       // 登录回调队列
-    location: null            // 缓存的位置信息 { lng, lat }
+    location: null,           // 缓存的位置信息 { lng, lat }
+    isNewUser: true            // 是否新用户
   },
 
   onLaunch() {
@@ -25,6 +26,7 @@ App({
     const cachedUserInfo = wx.getStorageSync('userInfo')
     if (cachedSession) {
       console.log('[restoreLoginState] 发现本地缓存 session，尝试恢复')
+      this.globalData.isNewUser = false
       this.globalData.thirdSessionKey = cachedSession
       this.globalData.isLogin = true
       if (cachedUserInfo) {

@@ -17,10 +17,14 @@
 
     <!-- 已登录 -->
     <view wx:if="{{isLogin}}" class="user-section">
-      <image wx:if="{{userInfo.headImg}}" class="avatar avatar-circle" src="{{userInfo.headImg}}" mode="aspectFill" />
-      <view wx:else class="avatar avatar-circle avatar-placeholder">
-        <text class="avatar-text">👤</text>
-      </view>
+      <button wx:if="{{!userInfo.headImg}}" class="avatar-choose-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <view class="avatar avatar-circle avatar-placeholder">
+          <text class="avatar-text">👤</text>
+        </view>
+      </button>
+      <button wx:else class="avatar-choose-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image class="avatar avatar-circle" src="{{userInfo.headImg}}" mode="aspectFill" />
+      </button>
       <view class="user-detail">
         <text class="nickname">{{userInfo.name || '微信用户'}}</text>
         <view class="user-id-row">
@@ -115,6 +119,21 @@
       <image class="qrcode-img" src="/images/kefu.jpg" mode="widthFix" show-menu-by-longpress="{{true}}" />
       <text class="modal-hint">长按二维码识别添加福利官</text>
       <view class="modal-close" bindtap="closeWelfareModal">关闭</view>
+    </view>
+  </view>
+
+  <!-- 昵称授权底部弹窗 -->
+  <view class="profile-sheet-mask {{showProfileSheet ? 'profile-sheet-mask-show' : ''}}" bindtap="closeProfileSheet">
+    <view class="profile-sheet {{showProfileSheet ? 'profile-sheet-show' : ''}}" catchtap="">
+      <view class="profile-sheet-bar"></view>
+      <text class="profile-sheet-title">设置昵称</text>
+      <text class="profile-sheet-desc">点击输入框后，在键盘上方选择「微信昵称」即可一键填入</text>
+      <view class="profile-nickname-row">
+        <text class="nickname-icon">✏️</text>
+        <input class="profile-nickname-input" type="nickname" placeholder="点击此处，选择微信昵称" value="{{wxNickname}}" bindinput="onNicknameChange" focus="{{showProfileSheet}}" />
+      </view>
+      <view class="profile-confirm-btn {{wxNickname ? '' : 'btn-disabled'}}" bindtap="confirmProfile">确认</view>
+      <view class="sheet-skip-btn" bindtap="closeProfileSheet">暂不设置</view>
     </view>
   </view>
 </view>
