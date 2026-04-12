@@ -101,6 +101,7 @@ Page({
   loadRecords() {
     this.setData({ loading: true })
     const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const { fixCdnUrl } = require('../../utils/request')
     return request({
       url: '/api/v1/wx/accid/list',
       method: 'GET',
@@ -110,6 +111,10 @@ Page({
       // 标记转账是否过期（转账发起超过24小时）
       const now = Date.now()
       list.forEach(item => {
+        // 修正 CDN 域名
+        if (item.video) item.video = fixCdnUrl(item.video)
+        if (item.accImg) item.accImg = item.accImg.split(',').map(u => fixCdnUrl(u.trim())).join(',')
+        if (item.thumbnailUrl) item.thumbnailUrl = fixCdnUrl(item.thumbnailUrl)
         if (item.billStatus == 2 && item.billCreateTime) {
           // 用 biz_wxpay_bill.create_time（转账发起时间）判断
           const billTs = new Date(item.billCreateTime.replace(/-/g, '/')).getTime()
