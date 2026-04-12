@@ -111,10 +111,24 @@ Page({
       // 标记转账是否过期（转账发起超过24小时）
       const now = Date.now()
       list.forEach(item => {
-        // 修正 CDN 域名
-        if (item.video) item.video = fixCdnUrl(item.video)
+        // 修正 CDN 域名（video/accImg 可能是逗号分隔的多个URL，需逐个处理）
+        if (item.video) item.video = item.video.split(',').map(u => fixCdnUrl(u.trim())).join(',')
         if (item.accImg) item.accImg = item.accImg.split(',').map(u => fixCdnUrl(u.trim())).join(',')
         if (item.thumbnailUrl) item.thumbnailUrl = fixCdnUrl(item.thumbnailUrl)
+
+        // 修正：后端 newAdd 把图片URL也存入了video字段，需要在前端纠正
+        // 如果 video 字段包含图片扩展名且 accImg 为空，说明是照片被误存为视频
+        if (item.video && !item.accImg) {
+          const urls = item.video.split(',')
+          const isAllImages = urls.every(u => {
+            const lower = u.split('?')[0].toLowerCase()
+            return lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.png') || lower.endsWith('.gif') || lower.endsWith('.webp')
+          })
+          if (isAllImages) {
+            item.accImg = item.video
+            item.video = ''
+          }
+        }
         if (item.billStatus == 2 && item.billCreateTime) {
           // 用 biz_wxpay_bill.create_time（转账发起时间）判断
           const billTs = new Date(item.billCreateTime.replace(/-/g, '/')).getTime()

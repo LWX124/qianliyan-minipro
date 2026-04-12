@@ -148,14 +148,98 @@
 }
 
 .uploading-content {
-  background: rgba(0, 0, 0, 0.8);
-  padding: 40rpx 60rpx;
-  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60rpx 80rpx;
+}
+
+/* 环形进度条 */
+.progress-ring {
+  width: 180rpx;
+  height: 180rpx;
+  position: relative;
+  margin-bottom: 36rpx;
+}
+
+.ring-bg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 12rpx solid rgba(255, 255, 255, 0.15);
+  box-sizing: border-box;
+}
+
+.ring-left-wrap,
+.ring-right-wrap {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ring-left-wrap {
+  left: 0;
+}
+
+.ring-right-wrap {
+  right: 0;
+}
+
+.ring-half {
+  position: absolute;
+  top: 0;
+  width: 200%;
+  height: 100%;
+  border-radius: 50%;
+  border: 12rpx solid #ff4d4f;
+  box-sizing: border-box;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  transition: transform 0.3s ease;
+}
+
+.ring-left {
+  left: 0;
+  transform-origin: right center;
+  transform: rotate(-180deg);
+}
+
+.ring-right {
+  right: 0;
+  transform-origin: left center;
+  transform: rotate(-180deg);
+}
+
+.ring-inner {
+  position: absolute;
+  top: 24rpx;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: 24rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-percent {
+  color: #fff;
+  font-size: 36rpx;
+  font-weight: 600;
 }
 
 .uploading-text {
   color: #fff;
   font-size: 30rpx;
+  margin-bottom: 12rpx;
+}
+
+.uploading-hint {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 24rpx;
 }
 
 /* ---- 手机号授权底部弹窗 ---- */

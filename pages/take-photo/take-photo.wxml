@@ -36,10 +36,24 @@
     </view>
   </view>
 
-  <!-- 上传遮罩 -->
+  <!-- 上传动画遮罩 -->
   <view class="uploading-mask" wx:if="{{uploading}}">
     <view class="uploading-content">
-      <text class="uploading-text">上传中 {{uploadedCount}}/{{photos.length}}</text>
+      <!-- 环形进度 -->
+      <view class="progress-ring">
+        <view class="ring-bg"></view>
+        <view class="ring-left-wrap">
+          <view class="ring-half ring-left" style="transform: rotate({{uploadPercent <= 50 ? (uploadPercent * 3.6 - 180) : 0}}deg)"></view>
+        </view>
+        <view class="ring-right-wrap">
+          <view class="ring-half ring-right" style="transform: rotate({{uploadPercent > 50 ? ((uploadPercent - 50) * 3.6 - 180) : -180}}deg)"></view>
+        </view>
+        <view class="ring-inner">
+          <text class="ring-percent">{{uploadPercent}}%</text>
+        </view>
+      </view>
+      <text class="uploading-text">正在上传 {{uploadedCount}}/{{photos.length}}</text>
+      <text class="uploading-hint">请勿退出页面</text>
     </view>
   </view>
 

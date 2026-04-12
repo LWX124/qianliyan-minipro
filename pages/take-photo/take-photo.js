@@ -6,6 +6,7 @@ Page({
     photos: [],
     uploading: false,
     uploadedCount: 0,
+    uploadPercent: 0,
     showPhoneModal: false
   },
 
@@ -60,7 +61,7 @@ Page({
     const { photos } = this.data
     if (photos.length === 0) return
 
-    this.setData({ uploading: true, uploadedCount: 0 })
+    this.setData({ uploading: true, uploadedCount: 0, uploadPercent: 0 })
     const urls = []
 
     // 获取地理位置
@@ -80,14 +81,22 @@ Page({
     }
 
     try {
+      const total = photos.length
       for (let i = 0; i < photos.length; i++) {
-        const res = await uploadFile(photos[i])
+        // 单张图片上传进度回调
+        const basePercent = Math.round((i / total) * 90)
+        const res = await uploadFile(photos[i], (progress) => {
+          const filePercent = Math.round((progress / 100) * (90 / total))
+          this.setData({ uploadPercent: Math.min(basePercent + filePercent, 90) })
+        })
         urls.push(res.data.url || res.data)
-        this.setData({ uploadedCount: i + 1 })
+        const finishedPercent = Math.round(((i + 1) / total) * 90)
+        this.setData({ uploadedCount: i + 1, uploadPercent: finishedPercent })
       }
 
       // 保存事故记录（图片用逗号分隔）
       const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+      this.setData({ uploadPercent: 95 })
       const addRes = await request({
         url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
         method: 'POST',
@@ -98,6 +107,9 @@ Page({
         }
       })
 
+      this.setData({ uploadPercent: 100 })
+      // 短暂展示100%完成状态
+      await new Promise(r => setTimeout(r, 500))
       this.setData({ uploading: false })
 
       if (addRes && addRes.errorCode === 5003) {
