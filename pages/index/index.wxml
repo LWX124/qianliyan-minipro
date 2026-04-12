@@ -5,7 +5,7 @@
   <!-- 自定义导航栏 -->
   <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
     <view class="custom-nav-content">
-      <text class="custom-nav-title">事故随手拍</text>
+      <text class="custom-nav-title">一起拍事故</text>
     </view>
   </view>
 
