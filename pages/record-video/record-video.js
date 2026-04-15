@@ -335,8 +335,10 @@ Page({
         success() { },
         fail() { }
       })
-      wx.showToast({ title: '上传成功', icon: 'success' })
-      setTimeout(() => wx.navigateBack(), 1500)
+      const mediaPath = encodeURIComponent(this.data.videoPath || '')
+      wx.redirectTo({
+        url: '/pages/share-result/share-result?type=video&mediaPath=' + mediaPath
+      })
     }).catch(() => {
       this.setData({ uploading: false })
       wx.showToast({ title: '上传失败，请重试', icon: 'none' })
