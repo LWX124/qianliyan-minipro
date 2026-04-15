@@ -333,11 +333,12 @@ Page({
       wx.requestSubscribeMessage({
         tmplIds: [config.subscribeTemplateId],
         success() { },
-        fail() { }
-      })
-      const mediaPath = encodeURIComponent(this.data.videoPath || '')
-      wx.redirectTo({
-        url: '/pages/share-result/share-result?type=video&mediaPath=' + mediaPath
+        fail() { },
+        complete: () => {
+          wx.redirectTo({
+            url: '/pages/share-result/share-result?type=video'
+          })
+        }
       })
     }).catch(() => {
       this.setData({ uploading: false })

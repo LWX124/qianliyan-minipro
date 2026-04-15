@@ -130,11 +130,12 @@ Page({
       wx.requestSubscribeMessage({
         tmplIds: [config.subscribeTemplateId],
         success() { },
-        fail() { }
-      })
-      const mediaPath = encodeURIComponent(this.data.photos[0] || '')
-      wx.redirectTo({
-        url: '/pages/share-result/share-result?type=photo&mediaPath=' + mediaPath
+        fail() { },
+        complete: () => {
+          wx.redirectTo({
+            url: '/pages/share-result/share-result?type=photo'
+          })
+        }
       })
     } catch (err) {
       this.setData({ uploading: false })

@@ -1,7 +1,4 @@
 <view class="page">
-  <!-- 黄色渐变背景 -->
-  <image class="page-bg" src="/images/share/bg.png" mode="aspectFill" />
-
   <!-- 白色主卡片 -->
   <view class="card">
     <!-- 奖励图标 -->
@@ -17,26 +14,10 @@
       </view>
     </view>
 
-    <!-- 缩略图区域 -->
-    <view class="media-preview">
-      <!-- 视频: 用 video 组件 + 自定义播放按钮叠加 -->
-      <block wx:if="{{type === 'video'}}">
-        <video
-          class="media-thumb"
-          src="{{mediaPath}}"
-          controls="{{false}}"
-          show-center-play-btn="{{false}}"
-          show-play-btn="{{false}}"
-          show-fullscreen-btn="{{false}}"
-          object-fit="cover"
-          autoplay="{{false}}"
-        />
-        <image class="play-btn" src="/images/share/play-btn.png" mode="aspectFit" />
-      </block>
-      <!-- 照片: 直接显示第一张照片 -->
-      <block wx:else>
-        <image class="media-thumb" src="{{mediaPath}}" mode="aspectFill" />
-      </block>
+    <!-- 固定横幅图 -->
+    <view class="banner-wrap">
+      <image class="banner-img" src="/images/share/banner.jpg" mode="aspectFill" />
+      <image class="play-btn" src="/images/share/play-btn.png" mode="aspectFit" />
     </view>
 
     <!-- 立即分享按钮 -->

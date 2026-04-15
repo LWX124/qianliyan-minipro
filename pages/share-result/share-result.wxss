@@ -6,16 +6,7 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-}
-
-/* 黄色渐变背景图 */
-.page-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+  background: linear-gradient(180deg, #F8E84A 0%, #FDF6C3 15%, #FDF5C8 100%);
 }
 
 /* 白色主卡片 */
@@ -24,7 +15,7 @@
   z-index: 1;
   width: 686rpx;
   margin-top: 40rpx;
-  padding: 48rpx 56rpx 60rpx;
+  padding: 80rpx 56rpx 60rpx;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0rpx 0rpx 48rpx 0rpx #F2EC87;
@@ -37,9 +28,9 @@
 
 /* 奖励图标 */
 .reward-icon {
-  width: 157rpx;
-  height: 170rpx;
-  margin-bottom: 20rpx;
+  width: 286rpx;
+  height: 229rpx;
+  margin-bottom: 12rpx;
 }
 
 /* 奖励文案 */
@@ -47,7 +38,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 40rpx;
+  margin-bottom: 0;
 }
 
 .reward-line {
@@ -63,20 +54,20 @@
   color: #FF4D4F;
 }
 
-/* 缩略图区域 */
-.media-preview {
-  width: 574rpx;
+/* 固定横幅图容器 */
+.banner-wrap {
+  width: 100%;
   height: 322rpx;
   border-radius: 24rpx;
   overflow: hidden;
   position: relative;
-  margin-bottom: 48rpx;
+  margin-top: 60rpx;
+  margin-bottom: 60rpx;
 }
 
-.media-thumb {
+.banner-img {
   width: 100%;
   height: 100%;
-  display: block;
 }
 
 .play-btn {
@@ -90,7 +81,6 @@
 
 /* 立即分享按钮 */
 .btn-share {
-  width: 574rpx;
   height: 110rpx;
   background: linear-gradient(136deg, #FFC940 0%, #FFECAB 100%);
   border-radius: 24rpx;
@@ -102,7 +92,9 @@
   text-align: center;
   border: none;
   padding: 0;
-  margin: 0 0 24rpx 0;
+  width: 100% !important;
+  margin: 0 0 40rpx 0;
+  box-sizing: border-box;
 }
 
 /* 微信按钮默认样式覆盖 */
@@ -114,12 +106,13 @@
 .btn-row {
   display: flex;
   justify-content: space-between;
-  width: 574rpx;
+  width: 100%;
 }
 
 .btn-retake {
   width: 280rpx;
   height: 110rpx;
+  box-sizing: border-box;
   border-radius: 24rpx;
   border: 2rpx solid #E8D28A;
   background: rgba(255, 249, 219, 0.6);

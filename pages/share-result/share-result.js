@@ -1,13 +1,11 @@
 Page({
   data: {
-    type: 'video',    // 'video' | 'photo'
-    mediaPath: ''     // 视频路径或照片路径
+    type: 'video'     // 'video' | 'photo'
   },
 
   onLoad(options) {
     const type = options.type || 'video'
-    const mediaPath = options.mediaPath ? decodeURIComponent(options.mediaPath) : ''
-    this.setData({ type, mediaPath })
+    this.setData({ type })
   },
 
   // 立即分享 — 由 <button open-type="share"> 触发
