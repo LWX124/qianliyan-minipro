@@ -1,0 +1,51 @@
+<view class="page">
+  <!-- 黄色渐变背景 -->
+  <image class="page-bg" src="/images/share/bg.png" mode="aspectFill" />
+
+  <!-- 白色主卡片 -->
+  <view class="card">
+    <!-- 奖励图标 -->
+    <image class="reward-icon" src="/images/share/reward-icon.png" mode="aspectFit" />
+
+    <!-- 文案 -->
+    <view class="reward-text">
+      <text class="reward-line">每次分享到群</text>
+      <view class="reward-line">
+        <text>增加</text>
+        <text class="reward-highlight">20%—50%</text>
+        <text>奖励</text>
+      </view>
+    </view>
+
+    <!-- 缩略图区域 -->
+    <view class="media-preview">
+      <!-- 视频: 用 video 组件 + 自定义播放按钮叠加 -->
+      <block wx:if="{{type === 'video'}}">
+        <video
+          class="media-thumb"
+          src="{{mediaPath}}"
+          controls="{{false}}"
+          show-center-play-btn="{{false}}"
+          show-play-btn="{{false}}"
+          show-fullscreen-btn="{{false}}"
+          object-fit="cover"
+          autoplay="{{false}}"
+        />
+        <image class="play-btn" src="/images/share/play-btn.png" mode="aspectFit" />
+      </block>
+      <!-- 照片: 直接显示第一张照片 -->
+      <block wx:else>
+        <image class="media-thumb" src="{{mediaPath}}" mode="aspectFill" />
+      </block>
+    </view>
+
+    <!-- 立即分享按钮 -->
+    <button class="btn-share" open-type="share">立即分享</button>
+
+    <!-- 底部两个按钮 -->
+    <view class="btn-row">
+      <view class="btn-retake" bindtap="onRetake">{{type === 'video' ? '重新拍摄' : '重新拍照'}}</view>
+      <view class="btn-history" bindtap="onViewHistory">查看视频</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,145 @@
+/* ===== 分享结果页 ===== */
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 黄色渐变背景图 */
+.page-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* 白色主卡片 */
+.card {
+  position: relative;
+  z-index: 1;
+  width: 686rpx;
+  margin-top: 40rpx;
+  padding: 48rpx 56rpx 60rpx;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0rpx 0rpx 48rpx 0rpx #F2EC87;
+  border-radius: 20rpx;
+  border: 4rpx solid #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 奖励图标 */
+.reward-icon {
+  width: 157rpx;
+  height: 170rpx;
+  margin-bottom: 20rpx;
+}
+
+/* 奖励文案 */
+.reward-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.reward-line {
+  font-family: PingFang SC, PingFang SC;
+  font-weight: 600;
+  font-size: 40rpx;
+  color: #262626;
+  text-align: center;
+  line-height: 60rpx;
+}
+
+.reward-highlight {
+  color: #FF4D4F;
+}
+
+/* 缩略图区域 */
+.media-preview {
+  width: 574rpx;
+  height: 322rpx;
+  border-radius: 24rpx;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 48rpx;
+}
+
+.media-thumb {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80rpx;
+  height: 80rpx;
+}
+
+/* 立即分享按钮 */
+.btn-share {
+  width: 574rpx;
+  height: 110rpx;
+  background: linear-gradient(136deg, #FFC940 0%, #FFECAB 100%);
+  border-radius: 24rpx;
+  font-family: PingFang SC, PingFang SC;
+  font-weight: 600;
+  font-size: 36rpx;
+  color: #010005;
+  line-height: 110rpx;
+  text-align: center;
+  border: none;
+  padding: 0;
+  margin: 0 0 24rpx 0;
+}
+
+/* 微信按钮默认样式覆盖 */
+.btn-share::after {
+  border: none;
+}
+
+/* 底部按钮行 */
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  width: 574rpx;
+}
+
+.btn-retake {
+  width: 280rpx;
+  height: 110rpx;
+  border-radius: 24rpx;
+  border: 2rpx solid #E8D28A;
+  background: rgba(255, 249, 219, 0.6);
+  font-family: PingFang SC, PingFang SC;
+  font-weight: 500;
+  font-size: 36rpx;
+  color: #B78A16;
+  line-height: 110rpx;
+  text-align: center;
+}
+
+.btn-history {
+  width: 280rpx;
+  height: 110rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(136deg, #FFC940 0%, #FFECAB 100%);
+  font-family: PingFang SC, PingFang SC;
+  font-weight: 500;
+  font-size: 36rpx;
+  color: #010005;
+  line-height: 110rpx;
+  text-align: center;
+}
