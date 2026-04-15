@@ -38,6 +38,8 @@ App({
         success: () => {
           console.log('[restoreLoginState] session 有效')
           this.globalData.isCheckingLogin = false
+          // session有效但phoneBound可能被之前的logout清除，立即恢复
+          this._restorePhoneBound(cachedSession)
         },
         fail: () => {
           console.log('[restoreLoginState] session 已过期，重新登录')
@@ -151,6 +153,9 @@ App({
                 wx.setStorageSync('thirdSessionKey', sessionId)
                 wx.setStorageSync('userInfo', this.globalData.userInfo)
 
+                // 登录成功后立即检查后端是否已绑定手机号，恢复本地标记
+                this._restorePhoneBound(sessionId)
+
                 // 执行当前回调
                 options.success && options.success()
 
@@ -190,6 +195,24 @@ App({
           cb.fail && cb.fail('wx.login 失败')
         })
         this.globalData.loginCallbacks = []
+      }
+    })
+  },
+
+  // 登录后立即检查后端是否已有手机号，恢复本地 phoneBound 标记
+  // 解决：session过期→logout清除phoneBound→重新登录后用户被重复要求绑定手机号
+  _restorePhoneBound(sessionKey) {
+    if (wx.getStorageSync('phoneBound')) return  // 已有标记，无需请求
+    wx.request({
+      url: config.baseUrl + '/api/v1/wx/user/get',
+      method: 'GET',
+      data: { thirdSessionKey: sessionKey },
+      success: (res) => {
+        const d = res.data
+        if (d && d.errorCode === 0 && d.data && d.data.phone) {
+          wx.setStorageSync('phoneBound', '1')
+          console.log('[_restorePhoneBound] 后端已有手机号，已恢复本地标记')
+        }
       }
     })
   },
