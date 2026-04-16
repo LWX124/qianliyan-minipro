@@ -450,9 +450,10 @@ Page({
   },
 
   onShareAppMessage() {
+    const userId = app.globalData.userInfo.userId || ''
     return {
       title: '拍事故 - 事故快拍',
-      path: '/pages/index/index'
+      path: '/pages/index/index?fromUserId=' + userId
     }
   }
 })

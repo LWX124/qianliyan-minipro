@@ -253,6 +253,7 @@ Page({
   closeWelfareModal() { this.setData({ showWelfareModal: false }) },
 
   onShareAppMessage() {
-    return { title: '拍事故 - 事故快拍', path: '/pages/index/index' }
+    const userId = getApp().globalData.userInfo.userId || ''
+    return { title: '拍事故 - 事故快拍', path: '/pages/index/index?fromUserId=' + userId }
   }
 })

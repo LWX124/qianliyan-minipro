@@ -10,16 +10,27 @@ Page({
     navBarHeight: 64
   },
 
-  onLoad() {
+  onLoad(options) {
     const sysInfo = wx.getSystemInfoSync()
     const statusBarHeight = sysInfo.statusBarHeight || 20
     const navBarHeight = statusBarHeight + 44
     this.setData({ statusBarHeight, navBarHeight })
+
+    // 检测分享链接打开
+    if (options.fromUserId) {
+      this._pendingFromUserId = options.fromUserId
+      this._tryReportShareOpen()
+    }
   },
 
   onShow() {
     this._requestLocation()
     this._checkPhoneForReturningUser()
+
+    // 分享打开上报重试（首次打开时可能尚未登录）
+    if (this._pendingFromUserId) {
+      this._tryReportShareOpen()
+    }
   },
 
   // 老用户未绑手机：延迟5秒弹窗（首次游客不弹）
@@ -109,6 +120,23 @@ Page({
     this.setData({ showPhoneModal: false })
   },
 
+  // 尝试上报分享被打开（需要登录后才能调用）
+  _tryReportShareOpen() {
+    const fromUserId = this._pendingFromUserId
+    if (!fromUserId) return
+
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    if (!thirdSessionKey) return  // 未登录，等 onShow 重试
+
+    this._pendingFromUserId = null
+    request({
+      url: '/api/v1/wx/share/open?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
+      method: 'POST',
+      header: { 'content-type': 'application/x-www-form-urlencoded' },
+      data: 'fromUserId=' + encodeURIComponent(fromUserId)
+    }).catch(() => {})
+  },
+
   // 请求地理位置权限
   _requestLocation() {
     if (app.globalData.location) return
@@ -184,9 +212,10 @@ Page({
   },
 
   onShareAppMessage() {
+    const userId = app.globalData.userInfo.userId || ''
     return {
       title: '拍事故 - 事故快拍',
-      path: '/pages/index/index'
+      path: '/pages/index/index?fromUserId=' + userId
     }
   }
 })

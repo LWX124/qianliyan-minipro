@@ -1,3 +1,5 @@
+const { request } = require('../../utils/request')
+
 Page({
   data: {
     type: 'video'     // 'video' | 'photo'
@@ -10,9 +12,20 @@ Page({
 
   // 立即分享 — 由 <button open-type="share"> 触发
   onShareAppMessage() {
+    // 记录分享动作（乐观计数，fire-and-forget）
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    if (thirdSessionKey) {
+      request({
+        url: '/api/v1/wx/share/record?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
+        method: 'POST'
+      }).catch(() => {})
+    }
+
+    const app = getApp()
+    const userId = app.globalData.userInfo.userId || ''
     return {
       title: '一起拍事故，领取现金奖励！',
-      path: '/pages/index/index'
+      path: '/pages/index/index?fromUserId=' + userId
     }
   },
 
