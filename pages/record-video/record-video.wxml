@@ -5,7 +5,7 @@
     class="camera-preview"
     device-position="{{devicePosition}}"
     flash="{{flashMode}}"
-    resolution="high"
+    resolution="medium"
     bindinitdone="onCameraReady"
     binderror="onCameraError"
   />
@@ -41,26 +41,39 @@
     </view>
   </view>
 
-  <!-- Layer 3: 引导提示 -->
-  <view class="guide-overlay {{showGuide ? '' : 'guide-fade-out'}}"
-        wx:if="{{(status === 'idle' || status === 'recording') && !cameraError}}">
-    <view class="guide-tip-item">角度找好，左右拍全，拉近距离</view>
-    <view class="guide-tip-item">记得拍清品牌和车牌</view>
-    <view class="guide-duration">视频最短5秒，最长5分钟</view>
+  <!-- Layer 3: 右侧缩放控制按钮 -->
+  <view class="zoom-controls"
+        wx:if="{{supportZoom && (status === 'idle' || status === 'recording') && !cameraError}}">
+    <view class="zoom-btn" bindtap="zoomReset">
+      <text class="zoom-btn-text">恢复</text>
+      <text class="zoom-btn-text">1倍</text>
+    </view>
+    <view class="zoom-btn" bindtap="zoomIn">
+      <text class="zoom-btn-icon">+</text>
+    </view>
+    <view class="zoom-btn zoom-display-btn">
+      <text class="zoom-display-text">{{zoomDisplay}}X</text>
+    </view>
+    <view class="zoom-btn" bindtap="zoomOut">
+      <text class="zoom-btn-icon">−</text>
+    </view>
+  </view>
+
+  <!-- Layer 3: 引导提示（左下角常驻） -->
+  <view class="guide-tips"
+        wx:if="{{(status === 'recording' || status === 'idle') && !cameraError}}">
+    <view class="guide-tip-row">
+      <view class="guide-check-icon">✓</view>
+      <text class="guide-tip-text">角度找好，左右拍全，拉近距离，减少晃动</text>
+    </view>
+    <view class="guide-tip-row">
+      <view class="guide-check-icon">✓</view>
+      <text class="guide-tip-text">记得拍清品牌和车牌</text>
+    </view>
   </view>
 
   <!-- Layer 4: 底部控制区 -->
   <view class="bottom-controls">
-
-    <!-- 缩放滑条 -->
-    <view class="zoom-bar" wx:if="{{supportZoom && status !== 'preview' && status !== 'uploading' && !cameraError}}">
-      <text class="zoom-label">1x</text>
-      <slider class="zoom-slider" min="10" max="50" value="{{zoomValue}}"
-              block-size="20" activeColor="#FFD700" backgroundColor="rgba(255,255,255,0.3)"
-              bindchanging="onZoomChange" bindchange="onZoomChange" />
-      <text class="zoom-label">5x</text>
-    </view>
-    <text class="zoom-display" wx:if="{{supportZoom && status !== 'preview' && status !== 'uploading' && !cameraError}}">{{zoomDisplay}}x</text>
 
     <!-- 计时器 -->
     <view class="timer-row" wx:if="{{status === 'recording' || status === 'paused'}}">
@@ -101,7 +114,8 @@
       <view class="uploading-spinner">
         <view class="spinner-dot" wx:for="{{3}}" wx:key="*this"></view>
       </view>
-      <text class="uploading-label" wx:if="{{uploadProgress > 0 && uploadProgress < 100}}">上传中 {{uploadProgress}}%</text>
+      <text class="uploading-label" wx:if="{{compressing}}">压缩中...</text>
+      <text class="uploading-label" wx:elif="{{uploadProgress > 0 && uploadProgress < 100}}">上传中 {{uploadProgress}}%</text>
       <text class="uploading-label" wx:else>上传中...</text>
     </view>
   </view>

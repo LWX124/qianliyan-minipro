@@ -51,44 +51,91 @@ function request(options) {
 }
 
 /**
- * 上传文件到服务器
+ * 上传文件到七牛云（直传，不经过后端中转）
  * @param {string} filePath 文件临时路径
  * @param {function} onProgress 进度回调 (progress) => {}
  */
 function uploadFile(filePath, onProgress) {
   return new Promise((resolve, reject) => {
-    const token = wx.getStorageSync('thirdSessionKey') || ''
-    const uploadTask = wx.uploadFile({
-      url: config.baseUrl + '/file/uploadfile',
-      filePath: filePath,
-      name: 'file',
+    const sessionKey = wx.getStorageSync('thirdSessionKey') || ''
+
+    // 推断文件扩展名
+    var ext = '.mp4'
+    var dotIdx = filePath.lastIndexOf('.')
+    if (dotIdx > -1) {
+      ext = filePath.substring(dotIdx).toLowerCase()
+    }
+
+    // 1. 从后端获取七牛上传凭证 + 预签名下载URL
+    wx.request({
+      url: config.baseUrl + '/file/uptoken?ext=' + encodeURIComponent(ext),
+      method: 'GET',
       header: {
-        'THIRDSESSIONKEY': token,
+        'THIRDSESSIONKEY': sessionKey,
         'X-Source': config.source
       },
-      success(res) {
-        try {
-          const data = JSON.parse(res.data)
-          if (data.errorCode === 0) {
-            resolve({ data: { url: data.data && data.data[0] } })
-          } else {
-            reject(data)
-          }
-        } catch (e) {
-          reject({ code: -1, msg: '服务器返回数据异常' })
+      success: function (tokenRes) {
+        var data = tokenRes.data
+        if (!data || data.errorCode !== 0) {
+          reject({ code: -1, msg: data && data.errorMsg || '获取上传凭证失败' })
+          return
         }
+        var info = data.data
+        var upToken = info.token
+        var key = info.key
+        var signedUrl = info.url
+
+        // 2. 直传七牛华南区（带重试）
+        doQiniuUpload(filePath, upToken, key, signedUrl, onProgress, 0, resolve, reject)
       },
-      fail(err) {
-        wx.showToast({ title: '上传失败', icon: 'none' })
+      fail: function (err) {
+        wx.showToast({ title: '网络异常', icon: 'none' })
         reject(err)
       }
     })
-    if (onProgress && uploadTask) {
-      uploadTask.onProgressUpdate((res) => {
-        onProgress(res.progress)
-      })
+  })
+}
+
+var MAX_RETRY = 2
+
+function doQiniuUpload(filePath, upToken, key, signedUrl, onProgress, retryCount, resolve, reject) {
+  var uploadTask = wx.uploadFile({
+    url: 'https://up-z2.qiniup.com',
+    filePath: filePath,
+    name: 'file',
+    formData: {
+      token: upToken,
+      key: key
+    },
+    success: function (res) {
+      try {
+        var result = JSON.parse(res.data)
+        if (result.key) {
+          resolve({ data: { url: signedUrl } })
+        } else if (result.error) {
+          reject({ code: -1, msg: result.error })
+        } else {
+          reject({ code: -1, msg: '七牛上传返回异常' })
+        }
+      } catch (e) {
+        reject({ code: -1, msg: '七牛返回数据解析失败' })
+      }
+    },
+    fail: function (err) {
+      if (retryCount < MAX_RETRY) {
+        console.warn('上传失败，第' + (retryCount + 1) + '次重试', err)
+        doQiniuUpload(filePath, upToken, key, signedUrl, onProgress, retryCount + 1, resolve, reject)
+      } else {
+        wx.showToast({ title: '上传失败', icon: 'none' })
+        reject(err)
+      }
     }
   })
+  if (onProgress && uploadTask) {
+    uploadTask.onProgressUpdate(function (res) {
+      onProgress(res.progress)
+    })
+  }
 }
 
 module.exports = { request, uploadFile, fixCdnUrl }

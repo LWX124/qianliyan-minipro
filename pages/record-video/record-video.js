@@ -17,15 +17,12 @@ Page({
     cameraError: false,
 
     // 缩放
-    zoomValue: 10,
+    currentZoom: 1.0,
     zoomDisplay: '1.0',
 
     // 计时器
     timerDisplay: '00:00',
     elapsedSeconds: 0,
-
-    // 引导提示
-    showGuide: true,
 
     // 暂停按钮延迟显示
     showPauseBtn: false,
@@ -41,6 +38,7 @@ Page({
     // 上传
     uploading: false,
     uploadProgress: 0,
+    compressing: false,
 
     // 布局
     statusBarHeight: 0,
@@ -124,7 +122,6 @@ Page({
     this.setData({
       elapsedSeconds: 0,
       timerDisplay: '00:00',
-      showGuide: true,
       showPauseBtn: false
     })
 
@@ -137,9 +134,9 @@ Page({
         this.setData({ status: 'recording' })
         this._startTimer()
 
-        // 5秒后隐藏引导并显示暂停按钮
+        // 5秒后显示暂停按钮
         this._guideTimer = setTimeout(() => {
-          this.setData({ showGuide: false, showPauseBtn: true })
+          this.setData({ showPauseBtn: true })
           this._guideTimer = null
         }, 5000)
 
@@ -149,7 +146,7 @@ Page({
       },
       fail: (err) => {
         console.error('startRecord fail:', err)
-        this.setData({ status: 'idle', showGuide: true })
+        this.setData({ status: 'idle' })
         wx.showToast({ title: '录制启动失败，请重试', icon: 'none' })
       }
     })
@@ -191,8 +188,7 @@ Page({
     this.setData({
       status: 'preview',
       videoPath: res.tempVideoPath,
-      durationDisplay: min + ':' + sec,
-      showGuide: false
+      durationDisplay: min + ':' + sec
     })
   },
 
@@ -227,14 +223,25 @@ Page({
     }
   },
 
-  // ========== 缩放控制 ==========
-  onZoomChange(e) {
-    const val = e.detail.value
-    const zoom = val / 10
-    this.setData({ zoomValue: val, zoomDisplay: zoom.toFixed(1) })
-    if (this.data.supportZoom && this.cameraCtx) {
+  // ========== 缩放快捷按钮 ==========
+  _applyZoom(zoom) {
+    zoom = Math.max(1.0, Math.min(5.0, zoom))
+    this.setData({ currentZoom: zoom, zoomDisplay: zoom.toFixed(1) })
+    if (this.cameraCtx) {
       this.cameraCtx.setZoom({ zoom })
     }
+  },
+
+  zoomIn() {
+    this._applyZoom(this.data.currentZoom + 0.5)
+  },
+
+  zoomOut() {
+    this._applyZoom(this.data.currentZoom - 0.5)
+  },
+
+  zoomReset() {
+    this._applyZoom(1.0)
   },
 
   // ========== 摄像头切换 ==========
@@ -242,7 +249,7 @@ Page({
     const s = this.data.status
     if (s !== 'idle' && s !== 'recording') return
     const newPos = this.data.devicePosition === 'back' ? 'front' : 'back'
-    this.setData({ devicePosition: newPos, zoomValue: 10, zoomDisplay: '1.0' })
+    this.setData({ devicePosition: newPos, currentZoom: 1.0, zoomDisplay: '1.0' })
     if (this.data.supportZoom && this.cameraCtx) {
       this.cameraCtx.setZoom({ zoom: 1 })
     }
@@ -275,13 +282,11 @@ Page({
       status: 'idle',
       videoPath: '',
       durationDisplay: '',
-      showGuide: true,
       showPauseBtn: false,
-      zoomValue: 10,
+      currentZoom: 1.0,
       zoomDisplay: '1.0'
     })
-    // 重拍：自动重新开始录制
-    this.startRecord()
+    // 不直接调 startRecord()，等 camera 组件重新 init 后由 onCameraReady 自动触发
   },
 
   uploadVideo() {
@@ -301,49 +306,74 @@ Page({
   _doUpload() {
     this.setData({ uploading: true, uploadProgress: 0 })
 
+    const videoPath = this.data.videoPath
     const lng = this.data.longitude
     const lat = this.data.latitude
+    const that = this
 
-    uploadFile(this.data.videoPath, (progress) => {
-      this.setData({ uploadProgress: progress })
-    }).then(res => {
-      const fileUrl = res.data.url || res.data
-      const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
-      return request({
-        url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
-        method: 'POST',
-        data: { url: fileUrl, lng: lng, lat: lat }
-      })
-    }).then(res => {
-      this.setData({ uploading: false })
-      if (res && res.errorCode === 5003) {
-        wx.removeStorageSync('phoneBound')
-        wx.showModal({
-          title: '需要授权手机号',
-          content: '上传记录需要先授权手机号，请返回首页完成授权后再上传',
-          showCancel: false,
-          confirmText: '我知道了'
+    function doUpload(path) {
+      uploadFile(path, (progress) => {
+        that.setData({ uploadProgress: progress })
+      }).then(res => {
+        const fileUrl = res.data.url || res.data
+        const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+        return request({
+          url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
+          method: 'POST',
+          data: { url: fileUrl, lng: lng, lat: lat }
         })
-        return
-      }
-      if (res && res.errorCode !== 0) {
-        wx.showToast({ title: res.errorMsg || '上传失败，请重试', icon: 'none' })
-        return
-      }
-      wx.requestSubscribeMessage({
-        tmplIds: [config.subscribeTemplateId],
-        success() { },
-        fail() { },
-        complete: () => {
-          wx.redirectTo({
-            url: '/pages/share-result/share-result?type=video'
+      }).then(res => {
+        that.setData({ uploading: false })
+        if (res && res.errorCode === 5003) {
+          wx.removeStorageSync('phoneBound')
+          wx.showModal({
+            title: '需要授权手机号',
+            content: '上传记录需要先授权手机号，请返回首页完成授权后再上传',
+            showCancel: false,
+            confirmText: '我知道了'
           })
+          return
+        }
+        if (res && res.errorCode !== 0) {
+          wx.showToast({ title: res.errorMsg || '上传失败，请重试', icon: 'none' })
+          return
+        }
+        wx.requestSubscribeMessage({
+          tmplIds: [config.subscribeTemplateId],
+          success() { },
+          fail() { },
+          complete: () => {
+            wx.redirectTo({
+              url: '/pages/share-result/share-result?type=video'
+            })
+          }
+        })
+      }).catch(() => {
+        that.setData({ uploading: false })
+        wx.showToast({ title: '上传失败，请重试', icon: 'none' })
+      })
+    }
+
+    // 压缩视频后上传（兼容低版本）
+    if (wx.canIUse('compressVideo')) {
+      this.setData({ compressing: true })
+      wx.compressVideo({
+        src: videoPath,
+        quality: 'medium',
+        bitrate: 1600,
+        fps: 24,
+        success: (res) => {
+          that.setData({ compressing: false })
+          doUpload(res.tempFilePath)
+        },
+        fail: () => {
+          that.setData({ compressing: false })
+          doUpload(videoPath)
         }
       })
-    }).catch(() => {
-      this.setData({ uploading: false })
-      wx.showToast({ title: '上传失败，请重试', icon: 'none' })
-    })
+    } else {
+      doUpload(videoPath)
+    }
   },
 
   // 手机号授权回调
