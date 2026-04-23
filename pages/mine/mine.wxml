@@ -62,7 +62,7 @@
       <view class="ad-banner-overlay">
         <text class="ad-banner-title">跑车必备神器</text>
         <view class="ad-banner-tag">
-          <text class="ad-banner-tag-text">拍照5元—30元</text>
+          <text class="ad-banner-tag-text">拍照5元—200元</text>
         </view>
         <image class="ad-banner-girl" src="/images/mine/camera_girl.png" mode="aspectFit" />
       </view>

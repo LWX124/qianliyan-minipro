@@ -33,7 +33,7 @@
         <view class="action-card-left">
           <image class="recommend-badge" src="/images/apply/badge_recommend.png" mode="aspectFit" />
           <text class="action-card-title">开始录制事故视频</text>
-          <text class="action-card-desc">每次都有5元—30元现金奖励</text>
+          <text class="action-card-desc">每次都有5元—200元现金奖励</text>
         </view>
       </view>
     </view>

@@ -22,13 +22,13 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "申请",
+        "text": "事故拍照",
         "iconPath": "images/tab-apply.png",
         "selectedIconPath": "images/tab-apply-active.png"
       },
       {
         "pagePath": "pages/mine/mine",
-        "text": "我的",
+        "text": "事故奖励",
         "iconPath": "images/tab-mine.png",
         "selectedIconPath": "images/tab-mine-active.png"
       }
