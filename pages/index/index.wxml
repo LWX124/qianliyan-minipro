@@ -11,7 +11,7 @@
 
   <!-- 顶部 Banner（黄色背景 + 文字 + 女生插画），图片已包含文字 -->
   <view class="banner-section" style="padding-top: {{navBarHeight}}px;">
-    <image class="banner-bg" src="/images/apply/group_accident.png" mode="aspectFill" />
+    <image class="banner-bg" src="/images/apply/group_accident.jpg" mode="aspectFill" />
   </view>
 
   <!-- 白色主卡片（圆角上叠 Banner） -->
