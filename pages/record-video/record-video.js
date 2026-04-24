@@ -1,4 +1,4 @@
-const { request, uploadFile } = require('../../utils/request')
+const { request, uploadFile, fixCdnUrl } = require('../../utils/request')
 const config = require('../../config/index')
 const app = getApp()
 
@@ -312,10 +312,11 @@ Page({
     const that = this
 
     function doUpload(path) {
+      var fileUrl = ''
       uploadFile(path, (progress) => {
         that.setData({ uploadProgress: progress })
       }).then(res => {
-        const fileUrl = res.data.url || res.data
+        fileUrl = res.data.url || res.data
         const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
         return request({
           url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
@@ -338,6 +339,7 @@ Page({
           wx.showToast({ title: res.errorMsg || '上传失败，请重试', icon: 'none' })
           return
         }
+        app.globalData.lastUploadedVideoUrl = fixCdnUrl(fileUrl)
         wx.requestSubscribeMessage({
           tmplIds: [config.subscribeTemplateId],
           success() { },

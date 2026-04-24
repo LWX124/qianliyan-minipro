@@ -1,13 +1,16 @@
 const { request } = require('../../utils/request')
+const app = getApp()
 
 Page({
   data: {
-    type: 'video'     // 'video' | 'photo'
+    type: 'video',     // 'video' | 'photo'
+    videoUrl: ''
   },
 
   onLoad(options) {
     const type = options.type || 'video'
-    this.setData({ type })
+    const videoUrl = app.globalData.lastUploadedVideoUrl || ''
+    this.setData({ type, videoUrl })
   },
 
   // 立即分享 — 由 <button open-type="share"> 触发
@@ -21,7 +24,6 @@ Page({
       }).catch(() => {})
     }
 
-    const app = getApp()
     const userId = app.globalData.userInfo.userId || ''
     return {
       title: '一起拍事故，领取现金奖励！',

@@ -14,10 +14,13 @@
       </view>
     </view>
 
-    <!-- 固定横幅图 -->
-    <view class="banner-wrap">
-      <image class="banner-img" src="/images/share/banner.jpg" mode="aspectFill" />
-      <image class="play-btn" src="/images/share/play-btn.png" mode="aspectFit" />
+    <!-- 视频/横幅图 -->
+    <view class="banner-wrap {{videoUrl ? 'banner-wrap--video' : ''}}">
+      <video wx:if="{{videoUrl}}" class="banner-video" src="{{videoUrl}}" controls object-fit="cover" show-center-play-btn="{{true}}" enable-progress-gesture="{{true}}"></video>
+      <block wx:else>
+        <image class="banner-img" src="/images/share/banner.jpg" mode="aspectFill" />
+        <image class="play-btn" src="/images/share/play-btn.png" mode="aspectFit" />
+      </block>
     </view>
 
     <!-- 立即分享按钮 -->
