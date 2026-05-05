@@ -132,7 +132,7 @@ App({
         wx.request({
             url: config.baseUrl + '/api/v1/wx/getSession',
             method: 'GET',
-            data: { code: res.code },
+            data: { code: res.code, source: config.source },
             success: (loginRes) => {
               console.log('[login] 后端返回:', JSON.stringify(loginRes.data))
               this._hidePageLoading()
