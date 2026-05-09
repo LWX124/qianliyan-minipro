@@ -22,8 +22,8 @@ App({
 
   // 尝试从本地缓存恢复登录状态
   restoreLoginState() {
-    const cachedSession = wx.getStorageSync('thirdSessionKey')
-    const cachedUserInfo = wx.getStorageSync('userInfo')
+    const cachedSession = wx.getStorageSync('thirdSessionKey_' + config.source)
+    const cachedUserInfo = wx.getStorageSync('userInfo_' + config.source)
     if (cachedSession) {
       console.log('[restoreLoginState] 发现本地缓存 session，尝试恢复')
       this.globalData.isNewUser = false
@@ -59,6 +59,9 @@ App({
       url: config.baseUrl + '/api/v1/wx/user/stats',
       method: 'GET',
       data: { thirdSessionKey: this.globalData.thirdSessionKey },
+      header: {
+        'X-Source': config.source
+      },
       success: (res) => {
         if (res.data.errorCode === 0) {
           options.success && options.success()
@@ -150,8 +153,8 @@ App({
                   headImg: userData.headImg || ''
                 }
 
-                wx.setStorageSync('thirdSessionKey', sessionId)
-                wx.setStorageSync('userInfo', this.globalData.userInfo)
+                wx.setStorageSync('thirdSessionKey_' + config.source, sessionId)
+                wx.setStorageSync('userInfo_' + config.source, this.globalData.userInfo)
 
                 // 登录成功后立即检查后端是否已绑定手机号，恢复本地标记
                 this._restorePhoneBound(sessionId)
@@ -202,15 +205,18 @@ App({
   // 登录后立即检查后端是否已有手机号，恢复本地 phoneBound 标记
   // 解决：session过期→logout清除phoneBound→重新登录后用户被重复要求绑定手机号
   _restorePhoneBound(sessionKey) {
-    if (wx.getStorageSync('phoneBound')) return  // 已有标记，无需请求
+    if (wx.getStorageSync('phoneBound_' + config.source)) return  // 已有标记，无需请求
     wx.request({
       url: config.baseUrl + '/api/v1/wx/user/get',
       method: 'GET',
       data: { thirdSessionKey: sessionKey },
+      header: {
+        'X-Source': config.source
+      },
       success: (res) => {
         const d = res.data
         if (d && d.errorCode === 0 && d.data && d.data.phone) {
-          wx.setStorageSync('phoneBound', '1')
+          wx.setStorageSync('phoneBound_' + config.source, '1')
           console.log('[_restorePhoneBound] 后端已有手机号，已恢复本地标记')
         }
       }
@@ -219,10 +225,10 @@ App({
 
   // 登出方法
   logout() {
-    wx.removeStorageSync('thirdSessionKey')
-    wx.removeStorageSync('userInfo')
-    wx.removeStorageSync('profileDone')
-    wx.removeStorageSync('phoneBound')
+    wx.removeStorageSync('thirdSessionKey_' + config.source)
+    wx.removeStorageSync('userInfo_' + config.source)
+    wx.removeStorageSync('profileDone_' + config.source)
+    wx.removeStorageSync('phoneBound_' + config.source)
     this.globalData.isLogin = false
     this.globalData.thirdSessionKey = ''
     this.globalData.userInfo = { userId: 0, name: '', headImg: '' }

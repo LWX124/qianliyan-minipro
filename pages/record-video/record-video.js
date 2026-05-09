@@ -293,7 +293,7 @@ Page({
     if (this.data.uploading) return
 
     // 检查手机号是否已绑定
-    const phoneBound = wx.getStorageSync('phoneBound')
+    const phoneBound = wx.getStorageSync('phoneBound_' + config.source)
     if (!phoneBound) {
       this._pendingUpload = true
       this.setData({ showPhoneModal: true })
@@ -326,7 +326,7 @@ Page({
       }).then(res => {
         that.setData({ uploading: false })
         if (res && res.errorCode === 5003) {
-          wx.removeStorageSync('phoneBound')
+          wx.removeStorageSync('phoneBound_' + config.source)
           wx.showModal({
             title: '需要授权手机号',
             content: '上传记录需要先授权手机号，请返回首页完成授权后再上传',
@@ -402,7 +402,7 @@ Page({
         wx.hideLoading()
         const data = res.data || {}
         if (data.errorCode === 0) {
-          wx.setStorageSync('phoneBound', '1')
+          wx.setStorageSync('phoneBound_' + config.source, '1')
           wx.showToast({ title: '手机号绑定成功', icon: 'success' })
         } else {
           wx.showToast({ title: data.errorMsg || '绑定失败', icon: 'none' })
