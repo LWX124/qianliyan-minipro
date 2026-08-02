@@ -50,7 +50,7 @@ Page({
 
   _delayCheckPhone() {
     if (!app.globalData.isLogin) return
-    const phoneBound = wx.getStorageSync('phoneBound')
+    const phoneBound = wx.getStorageSync('phoneBound_' + config.source)
     if (phoneBound) return
 
     this._phoneDelayTimer = setTimeout(() => {
@@ -65,10 +65,10 @@ Page({
 
   // ---- 手机号绑定 ----
   _checkPhoneBound() {
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     if (!thirdSessionKey) return
 
-    const phoneBound = wx.getStorageSync('phoneBound')
+    const phoneBound = wx.getStorageSync('phoneBound_' + config.source)
     if (phoneBound) return
 
     request({
@@ -77,7 +77,7 @@ Page({
       data: { thirdSessionKey }
     }).then(res => {
       if (res.errorCode === 0 && res.data && res.data.phone) {
-        wx.setStorageSync('phoneBound', '1')
+        wx.setStorageSync('phoneBound_' + config.source, '1')
       } else {
         this.setData({ showPhoneModal: true })
       }
@@ -91,7 +91,7 @@ Page({
       return
     }
     const code = e.detail.code
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     wx.showLoading({ title: '绑定中...' })
     wx.request({
       url: config.baseUrl + '/api/v1/wx/user/bindPhone',
@@ -102,7 +102,7 @@ Page({
         wx.hideLoading()
         const data = res.data || {}
         if (data.errorCode === 0) {
-          wx.setStorageSync('phoneBound', '1')
+          wx.setStorageSync('phoneBound_' + config.source, '1')
           wx.showToast({ title: '手机号绑定成功', icon: 'success' })
         } else {
           wx.showToast({ title: data.errorMsg || '绑定失败，请重试', icon: 'none' })
@@ -125,7 +125,7 @@ Page({
     const fromUserId = this._pendingFromUserId
     if (!fromUserId) return
 
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     if (!thirdSessionKey) return  // 未登录，等 onShow 重试
 
     this._pendingFromUserId = null

@@ -1,4 +1,5 @@
 const { request } = require('../../utils/request')
+const config = require('../../config/index')
 
 Page({
   data: {
@@ -30,7 +31,7 @@ Page({
     const app = getApp()
     if (!app.globalData.isLogin) return
     const userInfo = app.globalData.userInfo || {}
-    const profileDone = wx.getStorageSync('profileDone')
+    const profileDone = wx.getStorageSync('profileDone_' + config.source)
     if (userInfo.name || profileDone) return
 
     this._profileTimer = setTimeout(() => {
@@ -53,7 +54,7 @@ Page({
     }
 
     const app = getApp()
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
 
     wx.showLoading({ title: '保存中' })
     request({
@@ -69,8 +70,8 @@ Page({
           headImg: info.headImg || app.globalData.userInfo.headImg,
           name: info.wxname || app.globalData.userInfo.name
         }
-        wx.setStorageSync('userInfo', app.globalData.userInfo)
-        wx.setStorageSync('profileDone', '1')
+        wx.setStorageSync('userInfo_' + config.source, app.globalData.userInfo)
+        wx.setStorageSync('profileDone_' + config.source, '1')
         this.setData({ showProfileSheet: false })
         wx.showToast({ title: '设置成功', icon: 'success' })
       } else {
@@ -83,7 +84,7 @@ Page({
   },
 
   closeProfileSheet() {
-    wx.setStorageSync('profileDone', '1')
+    wx.setStorageSync('profileDone_' + config.source, '1')
     this.setData({ showProfileSheet: false })
   },
 
@@ -100,7 +101,7 @@ Page({
 
   loadRecords() {
     this.setData({ loading: true })
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     const { fixCdnUrl } = require('../../utils/request')
     return request({
       url: '/api/v1/wx/accid/list',
@@ -172,7 +173,7 @@ Page({
 
   confirmReceive(e) {
     const item = e.currentTarget.dataset.item
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     wx.showLoading({ title: '请稍候...' })
     request({
       url: '/api/v1/wx/accid/transferPackage',
@@ -191,7 +192,7 @@ Page({
         package: packageInfo,
         success: () => {
           // 通知后端用户已确认收款（POST + @RequestParam 需要拼到 URL query）
-          const confirmSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+          const confirmSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
           request({
             url: '/api/v1/wx/accid/confirmTransfer?thirdSessionKey=' + encodeURIComponent(confirmSessionKey) + '&accid=' + item.id,
             method: 'POST'

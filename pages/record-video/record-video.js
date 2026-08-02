@@ -292,15 +292,66 @@ Page({
   uploadVideo() {
     if (this.data.uploading) return
 
-    // 检查手机号是否已绑定
-    const phoneBound = wx.getStorageSync('phoneBound_' + config.source)
-    if (!phoneBound) {
+    // 无定位时告知用户：上报仍会保存，但无法就近派单给理赔员
+    if (!this.data.longitude || !this.data.latitude) {
+      wx.showModal({
+        title: '未获取到位置',
+        content: '当前未获取到位置信息，上报后无法就近派单。建议开启定位权限后重试。',
+        confirmText: '重新定位',
+        cancelText: '仍要上传',
+        success: (r) => {
+          if (r.confirm) {
+            this._fetchLocation(true)
+            wx.showToast({ title: '正在重新定位，请稍后重试', icon: 'none' })
+          } else {
+            this._checkPhoneThenUpload()
+          }
+        }
+      })
+      return
+    }
+
+    this._checkPhoneThenUpload()
+  },
+
+  _checkPhoneThenUpload() {
+    // 快速路径：本地已有绑定标记，直接上传
+    if (wx.getStorageSync('phoneBound_' + config.source)) {
+      this._doUpload()
+      return
+    }
+
+    // 缓存缺失不代表未绑定（换设备、清缓存、标记被清除都会导致）。
+    // 先向后端确认，避免让已绑定用户重复授权 —— 微信对同一用户短时间内
+    // 重复调用 getPhoneNumber 会失败，从而阻塞上传。
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
+    if (!thirdSessionKey) {
       this._pendingUpload = true
       this.setData({ showPhoneModal: true })
       return
     }
 
-    this._doUpload()
+    wx.showLoading({ title: '检查中...' })
+    request({
+      url: '/api/v1/wx/user/get',
+      method: 'GET',
+      data: { thirdSessionKey }
+    }).then(res => {
+      wx.hideLoading()
+      if (res && res.errorCode === 0 && res.data && res.data.phone) {
+        // 后端已有手机号，补回本地标记后直接上传
+        wx.setStorageSync('phoneBound_' + config.source, '1')
+        this._doUpload()
+      } else {
+        this._pendingUpload = true
+        this.setData({ showPhoneModal: true })
+      }
+    }).catch(() => {
+      wx.hideLoading()
+      // 网络异常时退回授权弹窗，由用户决定
+      this._pendingUpload = true
+      this.setData({ showPhoneModal: true })
+    })
   },
 
   _doUpload() {
@@ -317,7 +368,7 @@ Page({
         that.setData({ uploadProgress: progress })
       }).then(res => {
         fileUrl = res.data.url || res.data
-        const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+        const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
         return request({
           url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
           method: 'POST',
@@ -391,7 +442,7 @@ Page({
       return
     }
     const code = e.detail.code
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     wx.showLoading({ title: '绑定中...' })
     wx.request({
       url: config.baseUrl + '/api/v1/wx/user/bindPhone',
@@ -432,9 +483,10 @@ Page({
   },
 
   // ========== 获取位置 ==========
-  _fetchLocation() {
+  // force=true 时跳过缓存强制重新定位（用户在「未获取到位置」弹窗点重新定位）
+  _fetchLocation(force) {
     const cached = app.globalData.location
-    if (cached) {
+    if (!force && cached) {
       this.setData({ longitude: cached.lng, latitude: cached.lat })
       return
     }

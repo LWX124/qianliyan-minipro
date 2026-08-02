@@ -1,4 +1,5 @@
 const { request } = require('../../utils/request')
+const config = require('../../config/index')
 const app = getApp()
 
 Page({
@@ -16,7 +17,7 @@ Page({
   // 立即分享 — 由 <button open-type="share"> 触发
   onShareAppMessage() {
     // 记录分享动作（乐观计数，fire-and-forget）
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     if (thirdSessionKey) {
       request({
         url: '/api/v1/wx/share/record?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),

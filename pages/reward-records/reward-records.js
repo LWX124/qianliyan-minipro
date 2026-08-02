@@ -1,4 +1,5 @@
 const { request } = require('../../utils/request')
+const config = require('../../config/index')
 
 Page({
   data: {
@@ -26,7 +27,7 @@ Page({
   loadMore() {
     if (this.data.loading || !this.data.hasMore) return Promise.resolve()
     this.setData({ loading: true })
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     return request({
       url: '/api/v1/wx/reward/list',
       method: 'GET',

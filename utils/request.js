@@ -20,7 +20,7 @@ function fixCdnUrl(url) {
  */
 function request(options) {
   return new Promise((resolve, reject) => {
-    const token = wx.getStorageSync('thirdSessionKey') || ''
+    const token = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     const header = Object.assign({
       'content-type': 'application/json',
       'THIRDSESSIONKEY': token,
@@ -35,7 +35,7 @@ function request(options) {
       success(res) {
         if (res.data.errorCode === 530) {
           // 未登录，跳转登录
-          wx.removeStorageSync('thirdSessionKey')
+          wx.removeStorageSync('thirdSessionKey_' + config.source)
           wx.showToast({ title: '请先登录', icon: 'none' })
           reject(res.data)
           return
@@ -57,7 +57,7 @@ function request(options) {
  */
 function uploadFile(filePath, onProgress) {
   return new Promise((resolve, reject) => {
-    const sessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const sessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
 
     // 推断文件扩展名
     var ext = '.mp4'

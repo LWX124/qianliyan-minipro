@@ -20,8 +20,41 @@ App({
     this.restoreLoginState()
   },
 
+  /**
+   * 迁移旧版无 source 后缀的存储键。
+   *
+   * 2026-05-09 起存储键统一加 source 后缀以隔离多小程序（SSP/TTP），
+   * 但当时未迁移旧键，导致：老用户 storage 里仍是裸键、新用户只有带后缀的键，
+   * 而部分页面一直在读裸键 —— 老用户正常、新用户读不到 token。
+   * 这里在启动时把残留的裸键搬到带后缀的键上，再删除裸键，
+   * 使老用户升级后不会突然登出。
+   */
+  _migrateLegacyKeys() {
+    const pairs = [
+      ['thirdSessionKey', 'thirdSessionKey_' + config.source],
+      ['userInfo', 'userInfo_' + config.source],
+      ['phoneBound', 'phoneBound_' + config.source],
+      ['profileDone', 'profileDone_' + config.source]
+    ]
+    pairs.forEach(([legacy, current]) => {
+      try {
+        const legacyVal = wx.getStorageSync(legacy)
+        if (!legacyVal) return
+        // 仅当新键为空时才迁移，避免覆盖更新的值
+        if (!wx.getStorageSync(current)) {
+          wx.setStorageSync(current, legacyVal)
+          console.log('[_migrateLegacyKeys] 已迁移', legacy, '->', current)
+        }
+        wx.removeStorageSync(legacy)
+      } catch (e) {
+        // 迁移失败不应阻塞启动
+      }
+    })
+  },
+
   // 尝试从本地缓存恢复登录状态
   restoreLoginState() {
+    this._migrateLegacyKeys()
     const cachedSession = wx.getStorageSync('thirdSessionKey_' + config.source)
     const cachedUserInfo = wx.getStorageSync('userInfo_' + config.source)
     if (cachedSession) {

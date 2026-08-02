@@ -46,15 +46,42 @@ Page({
     const { photos } = this.data
     if (photos.length === 0) return
 
-    // 检查手机号是否已绑定
-    const phoneBound = wx.getStorageSync('phoneBound_' + config.source)
-    if (!phoneBound) {
+    // 快速路径：本地已有绑定标记，直接上传
+    if (wx.getStorageSync('phoneBound_' + config.source)) {
+      this._doUpload()
+      return
+    }
+
+    // 缓存缺失不代表未绑定（换设备、清缓存、标记被清除都会导致）。
+    // 先向后端确认，避免让已绑定用户重复授权 —— 微信对同一用户短时间内
+    // 重复调用 getPhoneNumber 会失败，从而阻塞上传。
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
+    if (!thirdSessionKey) {
       this._pendingUpload = true
       this.setData({ showPhoneModal: true })
       return
     }
 
-    this._doUpload()
+    wx.showLoading({ title: '检查中...' })
+    try {
+      const res = await request({
+        url: '/api/v1/wx/user/get',
+        method: 'GET',
+        data: { thirdSessionKey }
+      })
+      wx.hideLoading()
+      if (res && res.errorCode === 0 && res.data && res.data.phone) {
+        // 后端已有手机号，补回本地标记后直接上传
+        wx.setStorageSync('phoneBound_' + config.source, '1')
+        this._doUpload()
+        return
+      }
+    } catch (e) {
+      wx.hideLoading()
+    }
+    // 后端确认未绑定，或网络异常时退回授权弹窗
+    this._pendingUpload = true
+    this.setData({ showPhoneModal: true })
   },
 
   async _doUpload() {
@@ -95,7 +122,7 @@ Page({
       }
 
       // 保存事故记录（图片用逗号分隔）
-      const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+      const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
       this.setData({ uploadPercent: 95 })
       const addRes = await request({
         url: '/api/v1/wx/accid/newAdd?thirdSessionKey=' + encodeURIComponent(thirdSessionKey),
@@ -155,7 +182,7 @@ Page({
       return
     }
     const code = e.detail.code
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     wx.showLoading({ title: '绑定中...' })
     wx.request({
       url: config.baseUrl + '/api/v1/wx/user/bindPhone',

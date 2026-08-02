@@ -1,3 +1,4 @@
+const config = require('../../config/index')
 const app = getApp()
 
 Page({
@@ -60,7 +61,7 @@ Page({
 
   loadPersonalData() {
     const { request } = require('../../utils/request')
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
     request({
       url: '/api/v1/wx/user/stats',
       method: 'GET',
@@ -117,7 +118,7 @@ Page({
   // 检查昵称是否已设置
   _checkProfile() {
     const userInfo = app.globalData.userInfo || {}
-    const profileDone = wx.getStorageSync('profileDone')
+    const profileDone = wx.getStorageSync('profileDone_' + config.source)
     if (!userInfo.name && !profileDone) {
       this.setData({ showProfileSheet: true })
     }
@@ -130,7 +131,7 @@ Page({
 
     this._uploadingAvatar = true
     const { request, uploadFile } = require('../../utils/request')
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
 
     wx.showLoading({ title: '保存中' })
     uploadFile(avatarUrl).then(res => {
@@ -151,7 +152,7 @@ Page({
           headImg: info.headImg || app.globalData.userInfo.headImg,
           name: info.wxname || app.globalData.userInfo.name
         }
-        wx.setStorageSync('userInfo', app.globalData.userInfo)
+        wx.setStorageSync('userInfo_' + config.source, app.globalData.userInfo)
         const displayInfo = { ...app.globalData.userInfo }
         if (displayInfo.headImg) displayInfo.headImg = fixCdnUrl(displayInfo.headImg)
         this.setData({ userInfo: displayInfo })
@@ -181,7 +182,7 @@ Page({
     }
 
     const { request, fixCdnUrl } = require('../../utils/request')
-    const thirdSessionKey = wx.getStorageSync('thirdSessionKey') || ''
+    const thirdSessionKey = wx.getStorageSync('thirdSessionKey_' + config.source) || ''
 
     wx.showLoading({ title: '保存中' })
     request({
@@ -197,8 +198,8 @@ Page({
           headImg: info.headImg || app.globalData.userInfo.headImg,
           name: info.wxname || app.globalData.userInfo.name
         }
-        wx.setStorageSync('userInfo', app.globalData.userInfo)
-        wx.setStorageSync('profileDone', '1')
+        wx.setStorageSync('userInfo_' + config.source, app.globalData.userInfo)
+        wx.setStorageSync('profileDone_' + config.source, '1')
         const displayInfo = { ...app.globalData.userInfo }
         if (displayInfo.headImg) displayInfo.headImg = fixCdnUrl(displayInfo.headImg)
         this.setData({
@@ -216,7 +217,7 @@ Page({
   },
 
   closeProfileSheet() {
-    wx.setStorageSync('profileDone', '1')
+    wx.setStorageSync('profileDone_' + config.source, '1')
     this.setData({ showProfileSheet: false })
   },
 
